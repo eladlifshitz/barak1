@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>לזכרו של ברק לב שלם</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #e67e22;
+            --bg-color: #f8f9fa;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); margin: 0; color: #333; }
+        header { background: var(--primary-color); color: white; padding: 2rem; text-align: center; }
+        nav { background: #34495e; padding: 10px; text-align: center; sticky; top: 0; }
+        nav a { color: white; margin: 0 15px; text-decoration: none; font-weight: bold; }
+        
+        .container { max-width: 1000px; margin: 20px auto; padding: 20px; }
+        
+        /* דף שער - אפיון */
+        .hero { display: flex; gap: 20px; align-items: center; background: white; padding: 20px; border-radius: 15px; shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        .hero img { width: 300px; border-radius: 10px; }
+        .random-box { flex: 1; padding: 20px; border-right: 4px solid var(--accent-color); }
+
+        /* גלריה ובדיחות */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .card img { width: 100%; border-radius: 5px; height: 200px; object-fit: cover; }
+        .joke-text { font-style: italic; font-size: 1.1em; color: var(--primary-color); }
+        .tag { display: inline-block; background: #eee; padding: 2px 8px; border-radius: 10px; font-size: 0.8em; margin-top: 10px; }
+
+        h2 { border-bottom: 2px solid var(--accent-color); padding-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>ברק לב שלם</h1>
+    <p>האתר לזכרו - סיפורים, בדיחות ויצירה</p>
+</header>
+
+<nav>
+    <a href="#home">בית</a>
+    <a href="#bio">קורות חיים</a>
+    <a href="#gallery">גלריה</a>
+    <a href="#jokes">בדיחות</a>
+</nav>
+
+<div class="container">
+    <section id="home" class="hero">
+        <div id="main-photo">
+            <p>טוען תמונה...</p>
+        </div>
+        <div class="random-box">
+            <h3>בדיחה של ברק:</h3>
+            <div id="random-joke" class="joke-text">טוען בדיחה אקראית...</div>
+        </div>
+    </section>
+
+    <section id="gallery">
+        <h2>גלריית תמונות</h2>
+        <div id="images-grid" class="grid">טוען תמונות...</div>
+    </section>
+
+    <section id="jokes" style="margin-top: 50px;">
+        <h2>מאגר הבדיחות</h2>
+        <div id="all-jokes" class="grid">טוען את כל הבדיחות...</div>
+    </section>
+</div>
+
+<script>
+    const API_KEY = 'AIzaSyCKS2dCoAP3FJBlB-qp_qE9bsCAyyIv1vA';
+    const FOLDER_PHOTOS = '1jhuCr8n8QPxhv81QBNIlUdvAIfVvKfxV';
+    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWYpyL6NDKTU7HpYkz_7c7fLbqmYIavcgp0facG7tqZozKViewPdRWygSA39zneHNg1jpo1Upk8DGb/pub?output=csv';
+
+    // פונקציה למשיכת בדיחות
+    async function loadJokes() {
+        try {
+            const response = await fetch(SHEET_CSV_URL);
+            const data = await response.text();
+            const lines = data.split('\n').slice(1);
+            const jokes = lines.map(line => {
+                const parts = line.split(',');
+                return { content: parts[0], category: parts[1] };
+            });
+
+            // בדיחה אקראית לדף הבית
+            const random = jokes[Math.floor(Math.random() * jokes.length)];
+            document.getElementById('random-joke').innerText = `"${random.content}"`;
+
+            // כל הבדיחות
+            const container = document.getElementById('all-jokes');
+            container.innerHTML = jokes.map(j => `
+                <div class="card">
+                    <p class="joke-text">${j.content}</p>
+                    <span class="tag">${j.category}</span>
+                </div>
+            `).join('');
+        } catch (e) { console.error("Jokes error", e); }
+    }
+
+    // פונקציה למשיכת תמונות מהדרייב
+    async function loadPhotos() {
+        const url = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_PHOTOS}'+in+parent+and+mimeType+contains+'image/'&fields=files(id,name)&key=${API_KEY}`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            const files = data.files;
+
+            if (files.length > 0) {
+                // הצגת תמונה ראשית
+                const mainImgId = files[0].id;
+                document.getElementById('main-photo').innerHTML = `<img src="https://lh3.googleusercontent.com/d/${mainImgId}" alt="ברק">`;
+
+                // מילוי גלריה
+                const grid = document.getElementById('images-grid');
+                grid.innerHTML = files.map(f => `
+                    <div class="card">
+                        <img src="https://lh3.googleusercontent.com/d/${f.id}">
+                        <p>${f.name.split('.')[0]}</p>
+                    </div>
+                `).join('');
+            }
+        } catch (e) { console.error("Photos error", e); }
+    }
+
+    // הפעלה
+    loadJokes();
+    loadPhotos();
+</script>
+
+</body>
+</html>
