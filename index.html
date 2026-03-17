@@ -4,55 +4,60 @@
     <meta charset="UTF-8">
     <title>ברק לב שלם - זוכרים ומחייכים</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #fdfdfd; text-align: center; padding: 50px; }
-        .joke-box { background: #fff3e0; border-right: 8px solid #e67e22; padding: 30px; border-radius: 15px; max-width: 700px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        #joke-text { font-size: 1.8em; font-style: italic; color: #333; line-height: 1.4; }
-        .category-tag { color: #e67e22; font-weight: bold; margin-bottom: 10px; display: block; }
-        .error { color: red; margin-top: 20px; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #fdfdfd; text-align: center; padding: 40px; }
+        .joke-box { background: #fff3e0; border-right: 8px solid #e67e22; padding: 30px; border-radius: 15px; max-width: 600px; margin: 30px auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: none; }
+        #joke-text { font-size: 1.6em; font-style: italic; color: #333; }
+        #debug { color: #721c24; background: #f8d7da; padding: 15px; border-radius: 5px; margin: 20px auto; max-width: 600px; display: none; direction: ltr; }
     </style>
 </head>
 <body>
 
     <h1>ברק לב שלם</h1>
     
-    <div class="joke-box">
-        <span id="joke-category" class="category-tag"></span>
-        <div id="joke-text">טוען בדיחה מחייכת...</div>
+    <div id="debug"></div>
+
+    <div id="joke-container" class="joke-box">
+        <small id="category" style="color: #e67e22; font-weight: bold;"></small>
+        <div id="joke-text"></div>
     </div>
-    
-    <div id="debug" class="error"></div>
 
     <script>
-        // תוודא שהקישור הזה הוא הקישור מה-"Publish to web"
-        const csvUrl = 'כאן_הקישור_שלך'; 
+        // *** הדבק כאן את הקישור שהעתקת בסוף שלב 1 ***
+        const rawUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWYpyL6NDKTU7HpYkz_7c7fLbqmYIavcgp0facG7tqZozKViewPdRWygSA39zneHNg1jpo1Upk8DGb/pub?output=csv'; 
 
-        async function loadJoke() {
+        async function init() {
+            const debug = document.getElementById('debug');
+            const container = document.getElementById('joke-container');
+
             try {
-                const response = await fetch(csvUrl);
-                if (!response.ok) throw new Error("לא הצלחתי למשוך את הקובץ");
+                // ניקוי הקישור מרווחים או תווים נסתרים
+                const cleanUrl = rawUrl.trim();
                 
-                const data = await response.text();
-                // פיצול השורות תוך התחשבות בגרשיים (למקרה שיש פסיקים בתוך הבדיחה)
-                const rows = data.split('\n').map(row => row.split(','));
+                const response = await fetch(cleanUrl);
+                if (!response.ok) throw new Error("Google returned status: " + response.status);
                 
-                // סינון שורות ריקות ומדלגים על כותרת (שורה 0)
-                const contentRows = rows.slice(1).filter(r => r.length > 1 && r[1].trim() !== "");
+                const text = await response.text();
                 
-                if (contentRows.length > 0) {
-                    const randomRow = contentRows[Math.floor(Math.random() * contentRows.length)];
-                    
-                    // randomRow[0] זה ה-Category ("מפורסמים")
-                    // randomRow[1] זה ה-Joke Content (הבדיחה עצמה)
-                    
-                    document.getElementById('joke-category').innerText = randomRow[0].trim();
-                    document.getElementById('joke-text').innerText = `"${randomRow[1].trim()}"`;
+                // עיבוד השורות - מתמודד גם עם פסיקים בתוך מרכאות
+                const rows = text.split('\n').map(r => r.split(','));
+                const validRows = rows.slice(1).filter(r => r.length > 1 && r[1].trim() !== "");
+
+                if (validRows.length > 0) {
+                    const randomRow = validRows[Math.floor(Math.random() * validRows.length)];
+                    document.getElementById('category').innerText = randomRow[0].replace(/"/g, '');
+                    document.getElementById('joke-text').innerText = `"${randomRow[1].replace(/"/g, '').trim()}"`;
+                    container.style.display = 'block';
+                } else {
+                    throw new Error("No data found in the sheet.");
                 }
+
             } catch (err) {
-                document.getElementById('debug').innerText = "שגיאה בטעינה. וודא שהגיליון מפורסם כ-CSV.";
+                debug.style.display = 'block';
+                debug.innerText = "Error: " + err.message + "\nCheck if the link is published as CSV.";
             }
         }
 
-        loadJoke();
+        init();
     </script>
 </body>
 </html>
