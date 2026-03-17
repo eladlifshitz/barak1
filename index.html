@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <title>ברק לב שלם - זוכרים ומחייכים</title>
     <style>
-        body { font-family: 'Segoe UI', Arial; background: #fdfdfd; text-align: center; padding: 50px; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #fdfdfd; text-align: center; padding: 50px; }
         .joke-box { background: #fff3e0; border-right: 8px solid #e67e22; padding: 30px; border-radius: 15px; max-width: 700px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        #joke-text { font-size: 1.8em; font-style: italic; color: #333; }
+        #joke-text { font-size: 1.8em; font-style: italic; color: #333; line-height: 1.4; }
+        .category-tag { color: #e67e22; font-weight: bold; margin-bottom: 10px; display: block; }
         .error { color: red; margin-top: 20px; }
     </style>
 </head>
@@ -15,14 +16,15 @@
     <h1>ברק לב שלם</h1>
     
     <div class="joke-box">
-        <div id="joke-text">טוען בדיחה...</div>
+        <span id="joke-category" class="category-tag"></span>
+        <div id="joke-text">טוען בדיחה מחייכת...</div>
     </div>
     
     <div id="debug" class="error"></div>
 
     <script>
-        // הדבק כאן את הקישור שקיבלת מה-"Publish to web"
-        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWYpyL6NDKTU7HpYkz_7c7fLbqmYIavcgp0facG7tqZozKViewPdRWygSA39zneHNg1jpo1Upk8DGb/pub?output=csv';
+        // תוודא שהקישור הזה הוא הקישור מה-"Publish to web"
+        const csvUrl = 'כאן_הקישור_שלך'; 
 
         async function loadJoke() {
             try {
@@ -30,17 +32,23 @@
                 if (!response.ok) throw new Error("לא הצלחתי למשוך את הקובץ");
                 
                 const data = await response.text();
+                // פיצול השורות תוך התחשבות בגרשיים (למקרה שיש פסיקים בתוך הבדיחה)
                 const rows = data.split('\n').map(row => row.split(','));
                 
-                // לוקחים את הבדיחות (עמודה A) ומדלגים על הכותרת
-                const jokes = rows.slice(1).filter(r => r[0] && r[0].trim() !== "");
+                // סינון שורות ריקות ומדלגים על כותרת (שורה 0)
+                const contentRows = rows.slice(1).filter(r => r.length > 1 && r[1].trim() !== "");
                 
-                if (jokes.length > 0) {
-                    const randomJoke = jokes[Math.floor(Math.random() * jokes.length)];
-                    document.getElementById('joke-text').innerText = `"${randomJoke[0].trim()}"`;
+                if (contentRows.length > 0) {
+                    const randomRow = contentRows[Math.floor(Math.random() * contentRows.length)];
+                    
+                    // randomRow[0] זה ה-Category ("מפורסמים")
+                    // randomRow[1] זה ה-Joke Content (הבדיחה עצמה)
+                    
+                    document.getElementById('joke-category').innerText = randomRow[0].trim();
+                    document.getElementById('joke-text').innerText = `"${randomRow[1].trim()}"`;
                 }
             } catch (err) {
-                document.getElementById('debug').innerText = "שגיאה: " + err.message;
+                document.getElementById('debug').innerText = "שגיאה בטעינה. וודא שהגיליון מפורסם כ-CSV.";
             }
         }
 
