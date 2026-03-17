@@ -2,62 +2,67 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>ברק לב שלם - זוכרים ומחייכים</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>לזכרו של ברק לב שלם</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #fdfdfd; text-align: center; padding: 40px; }
-        .joke-box { background: #fff3e0; border-right: 8px solid #e67e22; padding: 30px; border-radius: 15px; max-width: 600px; margin: 30px auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: none; }
-        #joke-text { font-size: 1.6em; font-style: italic; color: #333; }
-        #debug { color: #721c24; background: #f8d7da; padding: 15px; border-radius: 5px; margin: 20px auto; max-width: 600px; display: none; direction: ltr; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 600px; width: 90%; text-align: center; border-top: 10px solid #e67e22; }
+        .category { color: #e67e22; font-weight: bold; font-size: 1.1em; margin-bottom: 15px; display: block; }
+        .joke-text { font-size: 1.8em; line-height: 1.4; color: #2c3e50; font-style: italic; margin-bottom: 30px; }
+        button { background: #e67e22; color: white; border: none; padding: 12px 30px; border-radius: 50px; cursor: pointer; font-size: 1.1em; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #d35400; transform: translateY(-2px); }
+        #loader { font-size: 1.2em; color: #666; }
     </style>
 </head>
 <body>
 
-    <h1>ברק לב שלם</h1>
-    
-    <div id="debug"></div>
-
-    <div id="joke-container" class="joke-box">
-        <small id="category" style="color: #e67e22; font-weight: bold;"></small>
-        <div id="joke-text"></div>
+    <div class="card">
+        <div id="loader">מתחבר לזכרונות של ברק...</div>
+        <div id="content" style="display:none;">
+            <span id="display-category" class="category"></span>
+            <div id="display-joke" class="joke-text"></div>
+            <button onclick="showRandomJoke()">בדיחה נוספת</button>
+        </div>
     </div>
 
-    <script>
-        // *** הדבק כאן את הקישור שהעתקת בסוף שלב 1 ***
-        const rawUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWYpyL6NDKTU7HpYkz_7c7fLbqmYIavcgp0facG7tqZozKViewPdRWygSA39zneHNg1jpo1Upk8DGb/pub?output=csv'; 
+<script>
+    // הקישור הישיר ל-CSV
+    const public_csv_url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWYpyL6NDKTU7HpYkz_7c7fLbqmYIavcgp0facG7tqZozKViewPdRWygSA39zneHNg1jpo1Upk8DGb/pub?output=csv';
+    
+    let jokesData = [];
 
-        async function init() {
-            const debug = document.getElementById('debug');
-            const container = document.getElementById('joke-container');
-
-            try {
-                // ניקוי הקישור מרווחים או תווים נסתרים
-                const cleanUrl = rawUrl.trim();
-                
-                const response = await fetch(cleanUrl);
-                if (!response.ok) throw new Error("Google returned status: " + response.status);
-                
-                const text = await response.text();
-                
-                // עיבוד השורות - מתמודד גם עם פסיקים בתוך מרכאות
-                const rows = text.split('\n').map(r => r.split(','));
-                const validRows = rows.slice(1).filter(r => r.length > 1 && r[1].trim() !== "");
-
-                if (validRows.length > 0) {
-                    const randomRow = validRows[Math.floor(Math.random() * validRows.length)];
-                    document.getElementById('category').innerText = randomRow[0].replace(/"/g, '');
-                    document.getElementById('joke-text').innerText = `"${randomRow[1].replace(/"/g, '').trim()}"`;
-                    container.style.display = 'block';
-                } else {
-                    throw new Error("No data found in the sheet.");
-                }
-
-            } catch (err) {
-                debug.style.display = 'block';
-                debug.innerText = "Error: " + err.message + "\nCheck if the link is published as CSV.";
+    function init() {
+        Papa.parse(public_csv_url, {
+            download: true,
+            header: true, // זה אומר לו לחפש לפי שמות העמודות Categories ו-Joke Content
+            skipEmptyLines: true,
+            complete: function(results) {
+                jokesData = results.data;
+                console.log("Data loaded:", jokesData); // לבדיקה בקונסול
+                showRandomJoke();
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
             }
-        }
+        });
+    }
 
-        init();
-    </script>
+    function showRandomJoke() {
+        if (jokesData.length > 0) {
+            const randomIndex = Math.floor(Math.random() * jokesData.length);
+            const item = jokesData[randomIndex];
+            
+            // שליפת הנתונים לפי השמות המדויקים של העמודות שלך
+            const category = item['Categories'] || "כללי";
+            const joke = item['Joke Content'] || "לא נמצא תוכן";
+
+            document.getElementById('display-category').innerText = category;
+            document.getElementById('display-joke').innerText = `"${joke}"`;
+        }
+    }
+
+    window.onload = init;
+</script>
+
 </body>
 </html>
