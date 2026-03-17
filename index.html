@@ -6,62 +6,141 @@
     <title>לזכרו של ברק לב שלם</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-        .card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 600px; width: 90%; text-align: center; border-top: 10px solid #e67e22; }
-        .category { color: #e67e22; font-weight: bold; font-size: 1.1em; margin-bottom: 15px; display: block; }
-        .joke-text { font-size: 1.8em; line-height: 1.4; color: #2c3e50; font-style: italic; margin-bottom: 30px; }
-        button { background: #e67e22; color: white; border: none; padding: 12px 30px; border-radius: 50px; cursor: pointer; font-size: 1.1em; font-weight: bold; transition: 0.3s; }
-        button:hover { background: #d35400; transform: translateY(-2px); }
-        #loader { font-size: 1.2em; color: #666; }
+        :root { --accent: #e67e22; --bg: #fdfdfd; --text: #2c3e50; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: var(--text); line-height: 1.6; }
+        .container { max-width: 1100px; margin: auto; }
+        
+        h1 { font-size: 2.5em; margin-bottom: 10px; color: var(--text); }
+        .subtitle { color: #7f8c8d; margin-bottom: 40px; font-size: 1.2em; }
+
+        /* כרטיס הבדיחה המשתנה */
+        .joke-card { background: white; padding: 40px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 60px; border-right: 12px solid var(--accent); position: relative; text-align: center; }
+        .joke-cat { color: var(--accent); font-weight: bold; font-size: 1.1em; display: block; margin-bottom: 10px; }
+        .joke-text { font-size: 1.8em; font-style: italic; color: #34495e; margin-bottom: 25px; display: block; }
+        
+        /* עיצוב הגלריה והאלבומים */
+        .album-section { margin-top: 60px; text-align: right; }
+        .album-title { font-size: 2.2em; border-bottom: 4px solid var(--accent); display: inline-block; padding-bottom: 8px; margin-bottom: 30px; color: var(--text); }
+        .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; }
+        .photo-item { background: white; padding: 12px; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.07); transition: transform 0.3s ease; }
+        .photo-item:hover { transform: translateY(-8px); }
+        .photo-item img { width: 100%; height: 220px; object-fit: cover; border-radius: 12px; cursor: pointer; display: block; }
+        .photo-caption { margin-top: 12px; font-weight: 600; font-size: 1em; text-align: center; color: #555; }
+        
+        button { background: var(--accent); color: white; border: none; padding: 12px 30px; border-radius: 50px; cursor: pointer; font-size: 1.1em; font-weight: bold; transition: 0.2s; }
+        button:hover { background: #d35400; transform: scale(1.05); }
+        
+        #loading-screen { font-size: 1.5em; height: 80vh; display: flex; align-items: center; justify-content: center; color: #95a5a6; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <div id="loader">מתחבר לזכרונות של ברק...</div>
-        <div id="content" style="display:none;">
-            <span id="display-category" class="category"></span>
-            <div id="display-joke" class="joke-text"></div>
-            <button onclick="showRandomJoke()">בדיחה נוספת</button>
+<div class="container">
+    <div id="loading-screen">טוען זכרונות מחייכים...</div>
+
+    <div id="main-content" style="display:none;">
+        <header>
+            <h1>ברק לב שלם</h1>
+            <p class="subtitle">זוכרים דרך החיוך, ההומור והאהבה</p>
+        </header>
+
+        <div class="joke-card">
+            <span id="joke-cat" class="joke-cat"></span>
+            <span id="joke-text" class="joke-text"></span>
+            <button onclick="displayRandomJoke()">בדיחה נוספת 😊</button>
         </div>
+
+        <div id="gallery-container"></div>
     </div>
+</div>
 
 <script>
-    // הקישור הישיר ל-CSV
-    const public_csv_url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWYpyL6NDKTU7HpYkz_7c7fLbqmYIavcgp0facG7tqZozKViewPdRWygSA39zneHNg1jpo1Upk8DGb/pub?output=csv';
-    
-    let jokesData = [];
+    // הקישורים שלך
+    const JOKES_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWYpyL6NDKTU7HpYkz_7c7fLbqmYIavcgp0facG7tqZozKViewPdRWygSA39zneHNg1jpo1Upk8DGb/pub?output=csv';
+    const PHOTOS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQejae0pWcPjbYrlj7cwqBPRxHN8o7hU0arrWV4QEVs3ap-VbhkvPjjhIsnXIovjQMggYbMbd0lwLe_/pub?gid=0&single=true&output=csv';
 
-    function init() {
-        Papa.parse(public_csv_url, {
-            download: true,
-            header: true, // זה אומר לו לחפש לפי שמות העמודות Categories ו-Joke Content
-            skipEmptyLines: true,
-            complete: function(results) {
-                jokesData = results.data;
-                console.log("Data loaded:", jokesData); // לבדיקה בקונסול
-                showRandomJoke();
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('content').style.display = 'block';
-            }
-        });
-    }
+    let jokes = [];
+    let photos = [];
 
-    function showRandomJoke() {
-        if (jokesData.length > 0) {
-            const randomIndex = Math.floor(Math.random() * jokesData.length);
-            const item = jokesData[randomIndex];
-            
-            // שליפת הנתונים לפי השמות המדויקים של העמודות שלך
-            const category = item['Categories'] || "כללי";
-            const joke = item['Joke Content'] || "לא נמצא תוכן";
+    async function init() {
+        try {
+            // טעינת שני המקורות במקביל
+            const [jokesRes, photosRes] = await Promise.all([
+                fetchData(JOKES_URL, true), // header: true לבדיחות
+                fetchData(PHOTOS_URL, false) // header: false לתמונות (A, B, C)
+            ]);
 
-            document.getElementById('display-category').innerText = category;
-            document.getElementById('display-joke').innerText = `"${joke}"`;
+            jokes = jokesRes;
+            photos = photosRes.slice(1); // הורדת שורת הכותרת מהתמונות
+
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+
+            displayRandomJoke();
+            renderGallery();
+        } catch (e) {
+            document.getElementById('loading-screen').innerText = "אופס, חלה שגיאה בטעינת הנתונים.";
         }
     }
 
-    window.onload = init;
+    function fetchData(url, hasHeader) {
+        return new Promise((resolve, reject) => {
+            Papa.parse(url, {
+                download: true,
+                header: hasHeader,
+                skipEmptyLines: true,
+                complete: results => resolve(results.data),
+                error: err => reject(err)
+            });
+        });
+    }
+
+    function displayRandomJoke() {
+        if (jokes.length > 0) {
+            const item = jokes[Math.floor(Math.random() * jokes.length)];
+            document.getElementById('joke-cat').innerText = item['Categories'] || "כללי";
+            document.getElementById('joke-text').innerText = `"${item['Joke Content']}"`;
+        }
+    }
+
+    function renderGallery() {
+        const container = document.getElementById('gallery-container');
+        const albums = {};
+
+        // ארגון לפי עמודות: A=שם נקי (0), B=ID (1), C=שם אלבום (2)
+        photos.forEach(row => {
+            const name = row[0];
+            const id = row[1];
+            const album = row[2];
+            
+            if (id && album) {
+                if (!albums[album]) albums[album] = [];
+                albums[album].push({ id, name });
+            }
+        });
+
+        let html = '';
+        // יצירת סקשן לכל אלבום
+        for (const [title, items] of Object.entries(albums)) {
+            html += `
+                <div class="album-section">
+                    <h2 class="album-title">${title}</h2>
+                    <div class="photo-grid">
+                        ${items.map(p => `
+                            <div class="photo-item">
+                                <img src="https://lh3.googleusercontent.com/d/${p.id}" 
+                                     alt="${p.name}" 
+                                     onclick="window.open(this.src)">
+                                <div class="photo-caption">${p.name}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    init();
 </script>
 
 </body>
