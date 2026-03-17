@@ -6,56 +6,41 @@
     <title>לזכרו של ברק לב שלם</title>
     <style>
         :root { --primary: #2c3e50; --accent: #e67e22; --bg: #fdfdfd; }
-        body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; background: var(--bg); margin: 0; color: #333; line-height: 1.6; }
-        header { background: var(--primary); color: white; padding: 60px 20px; text-align: center; }
-        nav { background: #34495e; padding: 15px; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: center; gap: 20px; }
-        nav a { color: white; text-decoration: none; font-weight: bold; }
-        .container { max-width: 1100px; margin: auto; padding: 20px; }
-        .hero { display: flex; flex-wrap: wrap; gap: 30px; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 50px; align-items: center; }
-        .hero-img img { width: 100%; max-width: 350px; border-radius: 15px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .card img { width: 100%; height: 250px; object-fit: cover; border-radius: 8px; }
-        h2 { border-bottom: 3px solid var(--accent); display: inline-block; padding-bottom: 8px; margin-bottom: 40px; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; text-align: center; }
+        header { background: var(--primary); color: white; padding: 40px; }
+        .container { max-width: 1000px; margin: auto; padding: 20px; }
+        .hero { display: flex; flex-wrap: wrap; gap: 20px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 40px; align-items: center; }
+        .hero-img img { width: 100%; max-width: 300px; border-radius: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; }
+        .error-msg { color: red; background: #ffdada; padding: 10px; border-radius: 5px; margin: 10px; display: none; }
+        h2 { border-bottom: 3px solid var(--accent); display: inline-block; padding-bottom: 5px; }
     </style>
 </head>
 <body>
 
 <header>
     <h1>ברק לב שלם</h1>
-    <p>האתר לזכרו - סיפורים, בדיחות ויצירה</p>
+    <p>מנציחים את החיוך והדרך</p>
 </header>
 
-<nav>
-    <a href="#home">בית</a>
-    <a href="#gallery">תמונות</a>
-    <a href="#jokes">בדיחות</a>
-    <a href="#stories">סיפורים</a>
-</nav>
-
 <div class="container">
-    <section id="home" class="hero">
+    <div id="error-log" class="error-msg"></div>
+
+    <section class="hero">
         <div class="hero-img" id="main-photo">טוען תמונה...</div>
-        <div style="flex:1; text-align:right; border-right: 5px solid var(--accent); padding-right: 20px;">
+        <div style="flex:1; text-align:right; border-right: 4px solid var(--accent); padding-right: 20px;">
             <h3 style="color:var(--accent)">בדיחה של ברק:</h3>
-            <div id="random-joke" style="font-size:1.3em; font-style:italic;">טוען חיוך...</div>
+            <div id="random-joke" style="font-size:1.2em; font-style:italic;">טוען חיוך...</div>
         </div>
     </section>
 
-    <section id="gallery">
-        <h2>גלריית תמונות</h2>
-        <div id="images-grid" class="grid">טוען זכרונות...</div>
-    </section>
+    <h2>גלריה</h2>
+    <div id="images-grid" class="grid">טוען תמונות...</div>
 
-    <section id="jokes">
-        <h2>מאגר הבדיחות</h2>
-        <div id="all-jokes" class="grid">טוען בדיחות...</div>
-    </section>
-
-    <section id="stories">
-        <h2>מספרים על ברק</h2>
-        <div id="docs-list" class="grid">טוען מסמכים...</div>
-    </section>
+    <h2 style="margin-top:40px;">מסמכים וסיפורים</h2>
+    <div id="docs-list" class="grid">טוען מסמכים...</div>
 </div>
 
 <script>
@@ -64,42 +49,58 @@
     const FOLDER_DOCS = '1gGFrPezqD4-V9sAHt-6du6dltyMrmtqY';
     const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWYpyL6NDKTU7HpYkz_7c7fLbqmYIavcgp0facG7tqZozKViewPdRWygSA39zneHNg1jpo1Upk8DGb/pub?output=csv';
 
-    async function init() {
-        // טעינת בדיחות
-        fetch(SHEET_CSV).then(r => r.text()).then(data => {
+    function showError(msg) {
+        const div = document.getElementById('error-log');
+        div.style.display = 'block';
+        div.innerText += msg + "\n";
+    }
+
+    async function loadAll() {
+        // טעינת בדיחות (כבר עובד)
+        try {
+            const res = await fetch(SHEET_CSV);
+            const data = await res.text();
             const rows = data.split('\n').slice(1).map(r => r.split(','));
             const random = rows[Math.floor(Math.random() * rows.length)];
             document.getElementById('random-joke').innerText = `"${random[0]}"`;
-            document.getElementById('all-jokes').innerHTML = rows.map(r => `<div class="card"><i>"${r[0]}"</i><br><small>${r[1]}</small></div>`).join('');
-        });
+        } catch(e) { showError("שגיאה בטעינת בדיחות"); }
 
         // טעינת תמונות
         const driveUrl = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_PHOTOS}'+in+parent&fields=files(id,name)&key=${API_KEY}`;
-        fetch(driveUrl).then(r => r.json()).then(data => {
-            if(data.files) {
-                const imgHtml = data.files.map(f => `
+        try {
+            const res = await fetch(driveUrl);
+            const data = await res.json();
+            if (data.error) {
+                showError("שגיאת דרייב: " + data.error.message);
+            } else if (data.files) {
+                const grid = document.getElementById('images-grid');
+                grid.innerHTML = data.files.map(f => `
                     <div class="card">
-                        <img src="https://lh3.googleusercontent.com/u/0/d/${f.id}=w1000">
+                        <img src="https://lh3.googleusercontent.com/d/${f.id}">
                         <p>${f.name.split('.')[0]}</p>
-                    </div>`).join('');
-                document.getElementById('images-grid').innerHTML = imgHtml;
-                document.getElementById('main-photo').innerHTML = `<img src="https://lh3.googleusercontent.com/u/0/d/${data.files[0].id}=w1000">`;
+                    </div>
+                `).join('');
+                document.getElementById('main-photo').innerHTML = `<img src="https://lh3.googleusercontent.com/d/${data.files[0].id}">`;
             }
-        });
+        } catch(e) { showError("שגיאה בחיבור לדרייב"); }
 
         // טעינת מסמכים
         const docsUrl = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_DOCS}'+in+parent&fields=files(id,name)&key=${API_KEY}`;
-        fetch(docsUrl).then(r => r.json()).then(data => {
-            if(data.files) {
+        try {
+            const res = await fetch(docsUrl);
+            const data = await res.json();
+            if (data.files) {
                 document.getElementById('docs-list').innerHTML = data.files.map(d => `
                     <div class="card">
                         <h3>${d.name}</h3>
                         <a href="https://docs.google.com/document/d/${d.id}/view" target="_blank">קרא עוד ←</a>
-                    </div>`).join('');
+                    </div>
+                `).join('');
             }
-        });
+        } catch(e) { console.error(e); }
     }
-    init();
+
+    loadAll();
 </script>
 </body>
 </html>
