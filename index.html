@@ -2,63 +2,63 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>ברק לב שלם - לזכרו</title>
+    <title>ברק לב שלם - זיכרון</title>
     <style>
-        body { font-family: sans-serif; background: #f9f9f9; text-align: center; padding: 20px; }
-        .joke-box { background: white; padding: 20px; border-radius: 15px; border-right: 5px solid orange; max-width: 600px; margin: 20px auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .gallery { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
-        .img-card { background: white; padding: 10px; border-radius: 10px; width: 250px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .img-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 5px; }
+        body { font-family: sans-serif; text-align: center; padding: 20px; }
+        .gallery { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .card { border: 1px solid #ccc; padding: 10px; width: 200px; }
+        .card img { width: 100%; height: 150px; object-fit: cover; }
+        #debug { color: red; background: #eee; padding: 10px; margin: 10px; white-space: pre-wrap; display: none; }
     </style>
 </head>
 <body>
-
-    <h1>ברק לב שלם</h1>
-    
-    <div id="joke-section" class="joke-box">
-        <h3>בדיחה אקראית:</h3>
-        <p id="joke-text">טוען...</p>
-    </div>
-
-    <h2>גלריה</h2>
-    <div id="gallery-section" class="gallery">טוען תמונות...</div>
+    <h1>לזכרו של ברק לב שלם</h1>
+    <div id="debug"></div>
+    <div id="joke" style="font-size: 1.5em; margin: 20px; color: orange;"></div>
+    <div id="photos" class="gallery">טוען תמונות...</div>
 
     <script>
-        const key = 'AIzaSyCKS2dCoAP3FJBlB-qp_qE9bsCAyyIv1vA';
-        const folder = '1jhuCr8n8QPxhv81QBNIlUdvAIfVvKfxV';
+        const KEY = 'AIzaSyCKS2dCoAP3FJBlB-qp_qE9bsCAyyIv1vA';
+        const FOLDER = '1jhuCr8n8QPxhv81QBNIlUdvAIfVvKfxV';
 
-        // טעינת תמונות
-        async function getFiles() {
-            const url = "https://www.googleapis.com/drive/v3/files?q='" + folder + "'+in+parent&key=" + key;
+        // פונקציית טעינה פשוטה
+        async function start() {
+            const debugDiv = document.getElementById('debug');
             try {
+                const url = `https://www.googleapis.com/drive/v3/files?q='${FOLDER}'+in+parent&fields=files(id,name)&key=${KEY}`;
                 const res = await fetch(url);
                 const data = await res.json();
-                
+
+                if (data.error) {
+                    debugDiv.style.display = 'block';
+                    debugDiv.innerText = "שגיאת גוגל: " + JSON.stringify(data.error, null, 2);
+                    return;
+                }
+
                 if (data.files && data.files.length > 0) {
-                    let html = '';
-                    data.files.forEach(f => {
-                        // הקישור הכי פשוט לתצוגה מקדימה
-                        const src = "https://lh3.googleusercontent.com/d/" + f.id;
-                        html += '<div class="img-card"><img src="' + src + '"><p>' + f.name + '</p></div>';
-                    });
-                    document.getElementById('gallery-section').innerHTML = html;
+                    document.getElementById('photos').innerHTML = data.files.map(f => `
+                        <div class="card">
+                            <img src="https://lh3.googleusercontent.com/u/0/d/${f.id}">
+                            <p>${f.name}</p>
+                        </div>
+                    `).join('');
                 } else {
-                    document.getElementById('gallery-section').innerText = "לא נמצאו קבצים בתיקייה.";
+                    document.getElementById('photos').innerText = "התיקייה נראית ריקה.";
                 }
             } catch (e) {
-                document.getElementById('gallery-section').innerText = "שגיאה בטעינה.";
+                debugDiv.style.display = 'block';
+                debugDiv.innerText = "שגיאת חיבור: " + e.message;
             }
         }
 
-        // טעינת בדיחות
+        // טעינת בדיחה
         fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vTWYpyL6NDKTU7HpYkz_7c7fLbqmYIavcgp0facG7tqZozKViewPdRWygSA39zneHNg1jpo1Upk8DGb/pub?output=csv')
-            .then(r => r.text())
-            .then(t => {
-                const rows = t.split('\n').slice(1);
-                document.getElementById('joke-text').innerText = rows[Math.floor(Math.random() * rows.length)].split(',')[0];
+            .then(r => r.text()).then(text => {
+                const rows = text.split('\n').slice(1);
+                document.getElementById('joke').innerText = rows[Math.floor(Math.random() * rows.length)].split(',')[0];
             });
 
-        getFiles();
+        start();
     </script>
 </body>
 </html>
