@@ -4,81 +4,70 @@
     <meta charset="UTF-8">
     <title>ברק לב שלם - לזכרו</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; text-align: center; background: #fdfdfd; padding: 20px; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #fdfdfd; text-align: center; padding: 20px; }
         .gallery { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
-        .card { border: 1px solid #eee; padding: 10px; width: 220px; background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .card img { width: 100%; height: 180px; object-fit: cover; border-radius: 5px; }
-        #joke { font-size: 1.5em; margin: 30px auto; color: #e67e22; max-width: 700px; font-style: italic; }
-        #debug-box { color: #721c24; background: #f8d7da; border: 1px solid #f5c6cb; padding: 10px; display: none; margin: 20px auto; max-width: 600px; text-align: left; direction: ltr; }
+        .card { background: white; padding: 10px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 220px; }
+        .card img { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; }
+        #joke { font-size: 1.5em; margin: 30px; color: #e67e22; font-style: italic; min-height: 50px; }
+        #debug-msg { color: #721c24; background: #f8d7da; padding: 10px; border-radius: 5px; margin: 20px auto; max-width: 600px; display: none; direction: ltr; }
     </style>
 </head>
 <body>
     <h1>ברק לב שלם</h1>
-    <div id="debug-box"></div>
+    <div id="debug-msg"></div>
     <div id="joke">טוען חיוך...</div>
-    <hr style="width: 30%; opacity: 0.2; margin: 30px auto;">
-    <h2>זכרונות בתמונות</h2>
-    <div id="photos" class="gallery">טוען תמונות...</div>
+    <div id="photos" class="gallery">מחפש תמונות...</div>
 
     <script>
         const KEY = 'AIzaSyCKS2dCoAP3FJBlB-qp_qE9bsCAyyIv1vA';
-        const FOLDER = '1jhuCr8n8QPxhv81QBNIlUdvAIfVvKfxV';
+        const TARGET_FOLDER = '1jhuCr8n8QPxhv81QBNIlUdvAIfVvKfxV';
 
-        async function loadPhotos() {
+        async function loadData() {
             const photosDiv = document.getElementById('photos');
-            const debugBox = document.getElementById('debug-box');
+            const debugDiv = document.getElementById('debug-msg');
 
-            // שיטת ה-List הפשוטה ביותר - בלי שאילתות Q מורכבות
-            const url = `https://www.googleapis.com/drive/v3/files?pageSize=50&fields=files(id,name,mimeType)&q='${FOLDER}'+in+parent&key=${KEY}`;
+            // הכתובת הכי בסיסית שיש - רשימת קבצים כללית עם סינון ידני שלנו
+            const url = `https://www.googleapis.com/drive/v3/files?fields=files(id,name,parents,mimeType)&key=${KEY}`;
 
             try {
                 const res = await fetch(url);
                 const data = await res.json();
 
                 if (data.error) {
-                    debugBox.style.display = 'block';
-                    debugBox.innerText = `Google Error (${data.error.code}): ${data.error.message}`;
+                    debugDiv.style.display = 'block';
+                    debugDiv.innerText = `Error ${data.error.code}: ${data.error.message}`;
                     return;
                 }
 
-                if (data.files && data.files.length > 0) {
-                    // סינון לקבצי תמונה בלבד כאן בקוד שלנו, לא בשאילתה של גוגל
-                    const images = data.files.filter(f => f.mimeType.includes('image'));
-                    
-                    if (images.length === 0) {
-                        photosDiv.innerText = "לא נמצאו תמונות בתיקייה.";
-                        return;
-                    }
+                // סינון ידני: רק קבצים שהאבא שלהם הוא התיקייה של ברק
+                const myFiles = data.files.filter(f => 
+                    f.parents && f.parents.includes(TARGET_FOLDER) && f.mimeType.includes('image')
+                );
 
-                    photosDiv.innerHTML = images.map(f => {
-                        const imgUrl = `https://lh3.googleusercontent.com/d/${f.id}`;
-                        return `
-                            <div class="card">
-                                <img src="${imgUrl}" onerror="this.src='https://via.placeholder.com/200?text=תמונה'">
-                                <p style="font-size:0.9em; margin-top:8px; font-weight:bold;">${f.name.split('.')[0]}</p>
-                            </div>
-                        `;
-                    }).join('');
+                if (myFiles.length > 0) {
+                    photosDiv.innerHTML = myFiles.map(f => `
+                        <div class="card">
+                            <img src="https://lh3.googleusercontent.com/d/${f.id}">
+                            <p style="font-weight:bold; margin-top:8px;">${f.name.split('.')[0]}</p>
+                        </div>
+                    `).join('');
                 } else {
-                    photosDiv.innerText = "התיקייה נראית ריקה.";
+                    photosDiv.innerText = "לא הצלחתי למצוא קבצים בתיקייה. וודא שהתמונות בתוך התיקייה ושהיא שיתופית.";
                 }
             } catch (e) {
-                debugBox.style.display = 'block';
-                debugBox.innerText = "Connection Error: " + e.message;
+                debugDiv.style.display = 'block';
+                debugDiv.innerText = "Connection Failed: " + e.message;
             }
         }
 
-        // טעינת בדיחה (זה החלק שעובד יציב)
+        // טעינת בדיחה
         fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vTWYpyL6NDKTU7HpYkz_7c7fLbqmYIavcgp0facG7tqZozKViewPdRWygSA39zneHNg1jpo1Upk8DGb/pub?output=csv')
-            .then(r => r.text()).then(text => {
-                const rows = text.split('\n').slice(1);
-                if(rows.length > 0) {
-                    const randomLine = rows[Math.floor(Math.random() * rows.length)];
-                    document.getElementById('joke').innerText = `"${randomLine.split(',')[0]}"`;
-                }
+            .then(r => r.text()).then(t => {
+                const r = t.split('\n').slice(1);
+                document.getElementById('joke').innerText = `"${r[Math.floor(Math.random() * r.length)].split(',')[0]}"`;
             });
 
-        loadPhotos();
+        loadData();
     </script>
 </body>
 </html>
