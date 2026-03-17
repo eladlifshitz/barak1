@@ -2,83 +2,63 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>לזכרו של ברק לב שלם</title>
+    <title>ברק לב שלם - לזכרו</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #fdfdfd; text-align: center; margin: 0; padding: 20px; color: #333; }
-        .hero { background: white; padding: 30px; border-radius: 20px; max-width: 800px; margin: 30px auto; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border-right: 6px solid #e67e22; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; max-width: 1100px; margin: 40px auto; }
-        .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); transition: 0.3s; }
-        .card:hover { transform: translateY(-5px); }
-        .card img { width: 100%; height: 250px; object-fit: cover; border-radius: 8px; }
-        .error { color: #d9534f; background: #f9f2f4; padding: 15px; border-radius: 8px; margin: 20px auto; max-width: 600px; border: 1px solid #d9534f; }
-        h1 { color: #2c3e50; margin-bottom: 5px; }
+        body { font-family: sans-serif; background: #f9f9f9; text-align: center; padding: 20px; }
+        .joke-box { background: white; padding: 20px; border-radius: 15px; border-right: 5px solid orange; max-width: 600px; margin: 20px auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .gallery { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
+        .img-card { background: white; padding: 10px; border-radius: 10px; width: 250px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .img-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 5px; }
     </style>
 </head>
 <body>
 
     <h1>ברק לב שלם</h1>
-    <p>מנציחים את החיוך והדרך</p>
     
-    <div id="status-msg" style="color: #666; font-size: 0.9em;">מתחבר למאגר...</div>
-
-    <div class="hero">
-        <h3 style="color: #e67e22; margin-top: 0;">בדיחה של ברק:</h3>
-        <div id="random-joke" style="font-size: 1.3em; font-style: italic;">טוען חיוך...</div>
+    <div id="joke-section" class="joke-box">
+        <h3>בדיחה אקראית:</h3>
+        <p id="joke-text">טוען...</p>
     </div>
 
-    <h2>גלריית זכרונות</h2>
-    <div id="images-grid" class="grid"></div>
+    <h2>גלריה</h2>
+    <div id="gallery-section" class="gallery">טוען תמונות...</div>
 
-<script>
-    const API_KEY = 'AIzaSyCKS2dCoAP3FJBlB-qp_qE9bsCAyyIv1vA';
-    const FOLDER_ID = '1jhuCr8n8QPxhv81QBNIlUdvAIfVvKfxV';
+    <script>
+        const key = 'AIzaSyCKS2dCoAP3FJBlB-qp_qE9bsCAyyIv1vA';
+        const folder = '1jhuCr8n8QPxhv81QBNIlUdvAIfVvKfxV';
 
-    async function loadContent() {
-        const status = document.getElementById('status-msg');
-        const grid = document.getElementById('images-grid');
-
-        // 1. טעינת תמונות מהדרייב
-        // בניית ה-URL בצורה בטוחה בלי תווים בעייתיים
-        const query = encodeURIComponent(`'${FOLDER_ID}' in parent and mimeType contains 'image/'`);
-        const driveUrl = `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name)&key=${API_KEY}`;
-
-        try {
-            const res = await fetch(driveUrl);
-            const data = await res.json();
-
-            if (data.error) {
-                status.innerHTML = `<div class="error">שגיאה: ${data.error.message}</div>`;
-            } else if (data.files && data.files.length > 0) {
-                status.innerText = ""; // נקה הודעת טעינה
-                grid.innerHTML = data.files.map(f => {
-                    // שימוש בלינק תצוגה מקדימה יציב
-                    const imgUrl = `https://lh3.googleusercontent.com/d/${f.id}`;
-                    return `
-                        <div class="card">
-                            <img src="${imgUrl}" onerror="this.src='https://via.placeholder.com/300?text=תמונה'">
-                            <p style="font-weight: bold; margin-top: 10px;">${f.name.split('.')[0]}</p>
-                        </div>
-                    `;
-                }).join('');
-            } else {
-                grid.innerHTML = "<p>לא נמצאו תמונות בתיקייה.</p>";
+        // טעינת תמונות
+        async function getFiles() {
+            const url = "https://www.googleapis.com/drive/v3/files?q='" + folder + "'+in+parent&key=" + key;
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                if (data.files && data.files.length > 0) {
+                    let html = '';
+                    data.files.forEach(f => {
+                        // הקישור הכי פשוט לתצוגה מקדימה
+                        const src = "https://lh3.googleusercontent.com/d/" + f.id;
+                        html += '<div class="img-card"><img src="' + src + '"><p>' + f.name + '</p></div>';
+                    });
+                    document.getElementById('gallery-section').innerHTML = html;
+                } else {
+                    document.getElementById('gallery-section').innerText = "לא נמצאו קבצים בתיקייה.";
+                }
+            } catch (e) {
+                document.getElementById('gallery-section').innerText = "שגיאה בטעינה.";
             }
-        } catch (e) {
-            status.innerHTML = `<div class="error">תקלה טכנית בחיבור לשרת גוגל.</div>`;
         }
 
-        // 2. טעינת בדיחות (מקור חיצוני שכבר עובד)
+        // טעינת בדיחות
         fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vTWYpyL6NDKTU7HpYkz_7c7fLbqmYIavcgp0facG7tqZozKViewPdRWygSA39zneHNg1jpo1Upk8DGb/pub?output=csv')
-        .then(r => r.text()).then(t => {
-            const rows = t.split('\n').slice(1);
-            if(rows.length > 0) {
-                const randomLine = rows[Math.floor(Math.random() * rows.length)];
-                document.getElementById('random-joke').innerText = `"${randomLine.split(',')[0]}"`;
-            }
-        });
-    }
+            .then(r => r.text())
+            .then(t => {
+                const rows = t.split('\n').slice(1);
+                document.getElementById('joke-text').innerText = rows[Math.floor(Math.random() * rows.length)].split(',')[0];
+            });
 
-    loadContent();
-</script>
+        getFiles();
+    </script>
 </body>
 </html>
