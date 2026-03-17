@@ -3,66 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ברק לב שלם - זוכרים ומחייכים</title>
+    <title>לזכרו של ברק לב שלם</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        :root { --accent: #e67e22; --bg: #fdfdfd; --text: #2c3e50; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: var(--text); line-height: 1.6; }
-        .container { max-width: 1100px; margin: auto; }
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #e67e22;
+            --bg-color: #f8f9fa;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); margin: 0; color: #333; scroll-behavior: smooth; }
         
-        h1 { font-size: 2.5em; margin-bottom: 10px; color: var(--text); text-align: center; }
-        .subtitle { color: #7f8c8d; margin-bottom: 40px; font-size: 1.2em; text-align: center; }
+        header { background: var(--primary-color); color: white; padding: 2rem; text-align: center; }
+        nav { background: #34495e; padding: 10px; text-align: center; sticky; top: 0; z-index: 100; position: sticky; }
+        nav a { color: white; margin: 0 15px; text-decoration: none; font-weight: bold; }
+        
+        .container { max-width: 1100px; margin: 20px auto; padding: 20px; }
+        
+        /* דף שער - Hero */
+        .hero { display: flex; gap: 30px; align-items: center; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 40px; flex-wrap: wrap; }
+        .hero-img-box { flex: 0 0 300px; text-align: center; }
+        .hero-img-box img { width: 100%; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .random-box { flex: 1; padding: 20px; border-right: 6px solid var(--accent-color); min-width: 300px; }
+        .random-box h3 { margin-top: 0; color: var(--accent-color); }
 
-        /* כרטיס הבדיחה */
-        .joke-card { background: white; padding: 40px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 60px; border-right: 12px solid var(--accent); text-align: center; }
-        .joke-cat { color: var(--accent); font-weight: bold; font-size: 1.1em; display: block; margin-bottom: 10px; }
-        .joke-text { font-size: 1.8em; font-style: italic; color: #34495e; margin-bottom: 25px; display: block; }
+        /* גריד של כרטיסים */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); transition: 0.3s; position: relative; }
+        .card:hover { transform: translateY(-5px); }
+        .card img { width: 100%; border-radius: 8px; height: 220px; object-fit: cover; cursor: pointer; }
         
-        /* גלריה */
-        .album-section { margin-top: 60px; text-align: right; }
-        .album-title { font-size: 2.2em; border-bottom: 4px solid var(--accent); display: inline-block; padding-bottom: 8px; margin-bottom: 30px; }
-        .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; }
-        .photo-item { background: white; padding: 12px; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.07); transition: 0.3s; }
-        .photo-item:hover { transform: translateY(-8px); }
-        .photo-item img { width: 100%; height: 220px; object-fit: cover; border-radius: 12px; cursor: pointer; }
-        .photo-caption { margin-top: 12px; font-weight: 600; text-align: center; color: #555; }
-        
-        button { background: var(--accent); color: white; border: none; padding: 12px 30px; border-radius: 50px; cursor: pointer; font-size: 1.1em; font-weight: bold; }
+        .joke-text { font-style: italic; font-size: 1.2em; color: var(--primary-color); line-height: 1.5; }
+        .tag { display: inline-block; background: #fff3e0; color: var(--accent-color); padding: 4px 12px; border-radius: 20px; font-size: 0.85em; margin-top: 15px; font-weight: bold; }
+        .caption { text-align: center; margin-top: 10px; font-weight: bold; color: #555; }
 
-        /* מנגנון ה-Lightbox (התמונה שנפתחת) */
+        h2 { border-bottom: 3px solid var(--accent-color); padding-bottom: 10px; margin-top: 60px; color: var(--primary-color); }
+
+        /* Lightbox */
         #lightbox {
             display: none; position: fixed; z-index: 1000; top: 0; left: 0;
             width: 100%; height: 100%; background: rgba(0,0,0,0.9);
             justify-content: center; align-items: center; cursor: pointer;
         }
-        #lightbox img { max-width: 90%; max-height: 85%; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        #lightbox .close { position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; font-weight: bold; }
+        #lightbox img { max-width: 90%; max-height: 85%; border-radius: 10px; }
+
+        @media (max-width: 768px) {
+            .hero { flex-direction: column; text-align: center; }
+            .random-box { border-right: none; border-top: 4px solid var(--accent-color); }
+        }
     </style>
 </head>
 <body>
 
-<div id="lightbox" onclick="closeLightbox()">
-    <span class="close">&times;</span>
+<div id="lightbox" onclick="this.style.display='none'">
     <img id="lightbox-img" src="">
 </div>
 
+<header>
+    <h1>ברק לב שלם</h1>
+    <p>האתר לזכרו - חיוך, בדיחות וזכרונות</p>
+</header>
+
+<nav>
+    <a href="#home">בית</a>
+    <a href="#gallery">גלריה</a>
+    <a href="#jokes">מאגר הבדיחות</a>
+</nav>
+
 <div class="container">
-    <div id="loading-screen" style="text-align:center; margin-top:100px; font-size:1.5em; color:#95a5a6;">טוען זכרונות...</div>
-
-    <div id="main-content" style="display:none;">
-        <header>
-            <h1>ברק לב שלם</h1>
-            <p class="subtitle">זוכרים דרך החיוך וההומור</p>
-        </header>
-
-        <div class="joke-card">
-            <span id="joke-cat" class="joke-cat"></span>
-            <span id="joke-text" class="joke-text"></span>
-            <button onclick="displayRandomJoke()">בדיחה נוספת 😊</button>
+    <section id="home" class="hero">
+        <div class="hero-img-box" id="hero-photo">
+            </div>
+        <div class="random-box">
+            <h3>בדיחה של ברק:</h3>
+            <div id="random-joke" class="joke-text">טוען חיוך...</div>
+            <button onclick="displayRandomHero()" style="margin-top:20px; cursor:pointer; background:none; border:1px solid var(--accent-color); color:var(--accent-color); padding:5px 15px; border-radius:20px;">החלף בדיחה</button>
         </div>
+    </section>
 
-        <div id="gallery-container"></div>
-    </div>
+    <section id="gallery">
+        <h2>גלריית תמונות</h2>
+        <div id="gallery-content">טוען אלבומים...</div>
+    </section>
+
+    <section id="jokes">
+        <h2>מאגר הבדיחות המלא</h2>
+        <div id="all-jokes-grid" class="grid">טוען בדיחות...</div>
+    </section>
 </div>
 
 <script>
@@ -80,10 +106,10 @@
             ]);
             jokes = jokesRes;
             photos = photosRes.slice(1);
-            document.getElementById('loading-screen').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
-            displayRandomJoke();
+
+            displayRandomHero();
             renderGallery();
+            renderAllJokes();
         } catch (e) { console.error(e); }
     }
 
@@ -93,19 +119,24 @@
         });
     }
 
-    function displayRandomJoke() {
+    // בדיחה ותמונה אקראית לראש הדף
+    function displayRandomHero() {
         if (jokes.length > 0) {
-            const item = jokes[Math.floor(Math.random() * jokes.length)];
-            document.getElementById('joke-cat').innerText = item['Categories'] || "כללי";
-            document.getElementById('joke-text').innerText = `"${item['Joke Content']}"`;
+            const rJ = jokes[Math.floor(Math.random() * jokes.length)];
+            document.getElementById('random-joke').innerText = `"${rJ['Joke Content']}"`;
+        }
+        if (photos.length > 0) {
+            const rP = photos[Math.floor(Math.random() * photos.length)];
+            document.getElementById('hero-photo').innerHTML = `<img src="https://lh3.googleusercontent.com/d/${rP[1]}" alt="ברק">`;
         }
     }
 
+    // רינדור הגלריה לפי אלבומים
     function renderGallery() {
-        const container = document.getElementById('gallery-container');
+        const container = document.getElementById('gallery-content');
         const albums = {};
         photos.forEach(row => {
-            const name = row[0], id = row[1], album = row[2];
+            const [name, id, album] = row;
             if (id && album) {
                 if (!albums[album]) albums[album] = [];
                 albums[album].push({ id, name });
@@ -114,29 +145,32 @@
 
         let html = '';
         for (const [title, items] of Object.entries(albums)) {
-            html += `
-                <div class="album-section">
-                    <h2 class="album-title">${title}</h2>
-                    <div class="photo-grid">
-                        ${items.map(p => `
-                            <div class="photo-item">
-                                <img src="https://lh3.googleusercontent.com/d/${p.id}" onclick="openLightbox(this.src)">
-                                <div class="photo-caption">${p.name}</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>`;
+            html += `<h3>${title}</h3><div class="grid" style="margin-bottom:40px;">`;
+            html += items.map(p => `
+                <div class="card">
+                    <img src="https://lh3.googleusercontent.com/d/${p.id}" onclick="openLightbox(this.src)">
+                    <p class="caption">${p.name}</p>
+                </div>
+            `).join('');
+            html += `</div>`;
         }
         container.innerHTML = html;
     }
 
-    // פונקציות ה-Lightbox
+    // רינדור כל הבדיחות למטה
+    function renderAllJokes() {
+        const container = document.getElementById('all-jokes-grid');
+        container.innerHTML = jokes.map(j => `
+            <div class="card">
+                <p class="joke-text">"${j['Joke Content']}"</p>
+                <span class="tag">${j['Categories'] || 'כללי'}</span>
+            </div>
+        `).join('');
+    }
+
     function openLightbox(src) {
         document.getElementById('lightbox-img').src = src;
         document.getElementById('lightbox').style.display = 'flex';
-    }
-    function closeLightbox() {
-        document.getElementById('lightbox').style.display = 'none';
     }
 
     window.onload = init;
