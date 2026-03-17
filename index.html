@@ -2,105 +2,83 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>לזכרו של ברק לב שלם</title>
     <style>
-        :root { --primary: #2c3e50; --accent: #e67e22; --bg: #fdfdfd; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; text-align: center; }
-        header { background: var(--primary); color: white; padding: 40px; }
-        .container { max-width: 1000px; margin: auto; padding: 20px; }
-        .hero { display: flex; flex-wrap: wrap; gap: 20px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 40px; align-items: center; }
-        .hero-img img { width: 100%; max-width: 300px; border-radius: 10px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-        .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; }
-        .error-msg { color: red; background: #ffdada; padding: 10px; border-radius: 5px; margin: 10px; display: none; }
-        h2 { border-bottom: 3px solid var(--accent); display: inline-block; padding-bottom: 5px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #fdfdfd; text-align: center; margin: 0; padding: 20px; color: #333; }
+        .hero { background: white; padding: 30px; border-radius: 20px; max-width: 800px; margin: 30px auto; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border-right: 6px solid #e67e22; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; max-width: 1100px; margin: 40px auto; }
+        .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); }
+        .card img { width: 100%; height: 250px; object-fit: cover; border-radius: 8px; }
+        .error { color: #d9534f; background: #f9f2f4; padding: 15px; border-radius: 8px; margin: 20px auto; max-width: 600px; border: 1px solid #d9534f; }
+        h1 { color: #2c3e50; margin-bottom: 5px; }
     </style>
 </head>
 <body>
 
-<header>
     <h1>ברק לב שלם</h1>
     <p>מנציחים את החיוך והדרך</p>
-</header>
+    
+    <div id="status-msg" style="color: #666; font-size: 0.9em;">מתחבר למאגר...</div>
 
-<div class="container">
-    <div id="error-log" class="error-msg"></div>
+    <div class="hero">
+        <h3 style="color: #e67e22; margin-top: 0;">בדיחה של ברק:</h3>
+        <div id="random-joke" style="font-size: 1.3em; font-style: italic;">טוען חיוך...</div>
+    </div>
 
-    <section class="hero">
-        <div class="hero-img" id="main-photo">טוען תמונה...</div>
-        <div style="flex:1; text-align:right; border-right: 4px solid var(--accent); padding-right: 20px;">
-            <h3 style="color:var(--accent)">בדיחה של ברק:</h3>
-            <div id="random-joke" style="font-size:1.2em; font-style:italic;">טוען חיוך...</div>
-        </div>
-    </section>
-
-    <h2>גלריה</h2>
-    <div id="images-grid" class="grid">טוען תמונות...</div>
-
-    <h2 style="margin-top:40px;">מסמכים וסיפורים</h2>
-    <div id="docs-list" class="grid">טוען מסמכים...</div>
-</div>
+    <h2>גלריית זכרונות</h2>
+    <div id="images-grid" class="grid"></div>
 
 <script>
     const API_KEY = 'AIzaSyCKS2dCoAP3FJBlB-qp_qE9bsCAyyIv1vA';
-    const FOLDER_PHOTOS = '1jhuCr8n8QPxhv81QBNIlUdvAIfVvKfxV';
-    const FOLDER_DOCS = '1gGFrPezqD4-V9sAHt-6du6dltyMrmtqY';
-    const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWYpyL6NDKTU7HpYkz_7c7fLbqmYIavcgp0facG7tqZozKViewPdRWygSA39zneHNg1jpo1Upk8DGb/pub?output=csv';
+    const FOLDER_ID = '1jhuCr8n8QPxhv81QBNIlUdvAIfVvKfxV';
 
-    function showError(msg) {
-        const div = document.getElementById('error-log');
-        div.style.display = 'block';
-        div.innerText += msg + "\n";
-    }
+    async function loadContent() {
+        const status = document.getElementById('status-msg');
+        const grid = document.getElementById('images-grid');
 
-    async function loadAll() {
-        // טעינת בדיחות (כבר עובד)
-        try {
-            const res = await fetch(SHEET_CSV);
-            const data = await res.text();
-            const rows = data.split('\n').slice(1).map(r => r.split(','));
-            const random = rows[Math.floor(Math.random() * rows.length)];
-            document.getElementById('random-joke').innerText = `"${random[0]}"`;
-        } catch(e) { showError("שגיאה בטעינת בדיחות"); }
+        // 1. טעינת תמונות מהדרייב
+        // בניית ה-URL בצורה בטוחה בלי תווים בעייתיים
+        const query = encodeURIComponent(`'${FOLDER_ID}' in parent and mimeType contains 'image/'`);
+        const driveUrl = `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name)&key=${API_KEY}`;
 
-        // טעינת תמונות
-        const driveUrl = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_PHOTOS}'+in+parent&fields=files(id,name)&key=${API_KEY}`;
         try {
             const res = await fetch(driveUrl);
             const data = await res.json();
-            if (data.error) {
-                showError("שגיאת דרייב: " + data.error.message);
-            } else if (data.files) {
-                const grid = document.getElementById('images-grid');
-                grid.innerHTML = data.files.map(f => `
-                    <div class="card">
-                        <img src="https://lh3.googleusercontent.com/d/${f.id}">
-                        <p>${f.name.split('.')[0]}</p>
-                    </div>
-                `).join('');
-                document.getElementById('main-photo').innerHTML = `<img src="https://lh3.googleusercontent.com/d/${data.files[0].id}">`;
-            }
-        } catch(e) { showError("שגיאה בחיבור לדרייב"); }
 
-        // טעינת מסמכים
-        const docsUrl = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_DOCS}'+in+parent&fields=files(id,name)&key=${API_KEY}`;
-        try {
-            const res = await fetch(docsUrl);
-            const data = await res.json();
-            if (data.files) {
-                document.getElementById('docs-list').innerHTML = data.files.map(d => `
-                    <div class="card">
-                        <h3>${d.name}</h3>
-                        <a href="https://docs.google.com/document/d/${d.id}/view" target="_blank">קרא עוד ←</a>
-                    </div>
-                `).join('');
+            if (data.error) {
+                status.innerHTML = `<div class="error">שגיאה: ${data.error.message}</div>`;
+            } else if (data.files && data.files.length > 0) {
+                status.innerText = ""; // נקה הודעת טעינה
+                grid.innerHTML = data.files.map(f => {
+                    // שימוש בלינק תצוגה מקדימה יציב
+                    const imgUrl = `https://lh3.googleusercontent.com/d/${f.id}`;
+                    return `
+                        <div class="card">
+                            <img src="${imgUrl}" onerror="this.src='https://via.placeholder.com/300?text=תמונה'">
+                            <p style="font-weight: bold; margin-top: 10px;">${f.name.split('.')[0]}</p>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                grid.innerHTML = "<p>לא נמצאו תמונות בתיקייה.</p>";
             }
-        } catch(e) { console.error(e); }
+        } catch (e) {
+            status.innerHTML = `<div class="error">תקלה טכנית בחיבור לשרת גוגל.</div>`;
+        }
+
+        // 2. טעינת בדיחות (מקור חיצוני שכבר עובד)
+        fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vTWYpyL6NDKTU7HpYkz_7c7fLbqmYIavcgp0facG7tqZozKViewPdRWygSA39zneHNg1jpo1Upk8DGb/pub?output=csv')
+        .then(r => r.text()).then(t => {
+            const rows = t.split('\n').slice(1);
+            if(rows.length > 0) {
+                const randomLine = rows[Math.floor(Math.random() * rows.length)];
+                document.getElementById('random-joke').innerText = `"${randomLine.split(',')[0]}"`;
+            }
+        });
     }
 
-    loadAll();
+    loadContent();
 </script>
 </body>
 </html>
