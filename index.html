@@ -85,7 +85,7 @@
 </div>
 
 <script>
-    const JOKES_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWYpyL6NDKTU7HpYkz_7c7fLbqmYIavcgp0facG7tqZozKViewPdRWygSA39zneHNg1jpo1Upk8DGb/pub?output=csv';
+  const JOKES_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWYpyL6NDKTU7HpYkz_7c7fLbqmYIavcgp0facG7tqZozKViewPdRWygSA39zneHNg1jpo1Upk8DGb/pub?output=csv';
     const PHOTOS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQejae0pWcPjbYrlj7cwqBPRxHN8o7hU0arrWV4QEVs3ap-VbhkvPjjhIsnXIovjQMggYbMbd0lwLe_/pub?gid=0&single=true&output=csv';
     const TEXTS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSug0ITKEUEv_ds_rZkbz4c16B8eLQHwpbrsukCpYAOzYpvBz_1K0M_eIt9Ge4BuXk3Ckn6iOHJ2kGk/pub?output=csv';
 
@@ -93,17 +93,44 @@
 
     async function init() {
         try {
-            const [jRes, pRes, tRes] = await Promise.all([fetchData(JOKES_URL, true), fetchData(PHOTOS_URL, false), fetchData(TEXTS_URL, true)]);
-            jokes = jRes; photos = pRes.slice(1); texts = tRes;
-            displayRandomHero(); renderGallery(); renderTexts(); renderAllJokes();
-        } catch (e) { console.error(e); }
+            console.log("מתחיל טעינת נתונים...");
+            const [jRes, pRes, tRes] = await Promise.all([
+                fetchData(JOKES_URL, true), 
+                fetchData(PHOTOS_URL, false), 
+                fetchData(TEXTS_URL, true)
+            ]);
+            
+            jokes = jRes; 
+            photos = pRes.slice(1); 
+            texts = tRes;
+
+            console.log("נתונים נטענו:", { jokes: jokes.length, photos: photos.length, texts: texts.length });
+
+            displayRandomHero(); 
+            renderGallery(); 
+            renderTexts(); 
+            renderAllJokes();
+        } catch (e) { 
+            console.error("שגיאה כללית באתחול:", e); 
+        }
     }
 
-    function fetchData(url, header) { return new Promise(res => Papa.parse(url, { download: true, header, skipEmptyLines: true, complete: r => res(r.data) })); }
+    function fetchData(url, header) { 
+        return new Promise(res => Papa.parse(url, { 
+            download: true, 
+            header, 
+            skipEmptyLines: true, 
+            complete: r => res(r.data),
+            error: err => console.error("שגיאה בטעינת CSV:", url, err)
+        })); 
+    }
 
     function displayRandomHero() {
         if(jokes.length) document.getElementById('random-joke').innerText = `"${jokes[Math.floor(Math.random()*jokes.length)]['Joke Content']}"`;
-        if(photos.length) document.getElementById('hero-photo').innerHTML = `<img src="https://lh3.googleusercontent.com/u/0/d/${photos[Math.floor(Math.random()*photos.length)][1]}">`;
+        if(photos.length) {
+            const id = photos[Math.floor(Math.random()*photos.length)][1];
+            document.getElementById('hero-photo').innerHTML = `<img src="https://lh3.googleusercontent.com/d/${id}" alt="ברק">`;
+        }
     }
 
     function renderGallery() {
@@ -111,61 +138,67 @@
         photos.forEach(r => { if(r[1] && r[2]) { if(!albums[r[2]]) albums[r[2]] = []; albums[r[2]].push(r); }});
         let h = '';
         for(const [t, items] of Object.entries(albums)) {
-            h += `<h3>${t}</h3><div class="grid" style="margin-bottom:40px;">${items.map(p => `<div class="card" onclick="openImg('https://lh3.googleusercontent.com/u/0/d/${p[1]}')"><img src="https://lh3.googleusercontent.com/u/0/d/${p[1]}"><p style="text-align:center">${p[0]}</p></div>`).join('')}</div>`;
+            h += `<h3>${t}</h3><div class="grid" style="margin-bottom:40px;">${items.map(p => `
+                <div class="card" onclick="openImg('https://lh3.googleusercontent.com/d/${p[1]}')">
+                    <img src="https://lh3.googleusercontent.com/d/${p[1]}">
+                    <p style="text-align:center">${p[0]}</p>
+                </div>`).join('')}</div>`;
         }
-        container.innerHTML = h;
+        container.innerHTML = h || '<p>אין תמונות להצגה</p>';
     }
 
     function renderTexts() {
         const cBox = document.getElementById('creations-list'), sBox = document.getElementById('stories-list');
         let cH = '', sH = '';
+        
         texts.forEach(item => {
-            const card = `<div class="card" onclick="openText('${item.Link}')"><span class="tag">${item.Type}</span><h4>${item.Title}</h4>${item.Author ? `<p class="author-tag">מאת: ${item.Author}</p>` : ''}</div>`;
-            if(item.Type.includes("היצירה")) cH += card; else sH += card;
+            const link = item.Link || item.link; // תמיכה גם באות קטנה
+            const title = item.Title || item.title;
+            const type = item.Type || item.type;
+            const author = item.Author || item.author;
+
+            if(!link) return;
+
+            const card = `
+                <div class="card" onclick="openText('${link.trim()}')">
+                    <span class="tag">${type}</span>
+                    <h4>${title}</h4>
+                    ${author ? `<p class="author-tag">מאת: ${author}</p>` : ''}
+                </div>`;
+            
+            if(type && type.includes("היצירה")) cH += card; else sH += card;
         });
-        cBox.innerHTML = cH || '<p>בקרוב...</p>'; sBox.innerHTML = sH || '<p>בקרוב...</p>';
+        
+        cBox.innerHTML = cH || '<p>לא נמצאו יצירות</p>'; 
+        sBox.innerHTML = sH || '<p>לא נמצאו סיפורים</p>';
     }
 
     function renderAllJokes() {
-        document.getElementById('all-jokes-grid').innerHTML = jokes.map(j => `<div class="card"><p class="joke-text">"${j['Joke Content']}"</p><span class="tag">${j['Categories'] || 'כללי'}</span></div>`).join('');
+        document.getElementById('all-jokes-grid').innerHTML = jokes.map(j => `
+            <div class="card">
+                <p class="joke-text">"${j['Joke Content']}"</p>
+                <span class="tag">${j['Categories'] || 'כללי'}</span>
+            </div>`).join('');
     }
 
     function openImg(src) { document.getElementById('lightbox-img').src = src; document.getElementById('lightbox').style.display = 'flex'; }
     
     async function openText(path) {
-    const modal = document.getElementById('text-modal');
-    const area = document.getElementById('text-display-area');
-    
-    modal.style.display = 'flex';
-    area.innerHTML = '<p style="text-align:center;">טוען את המילים...</p>';
-
-    // ניקוי הנתיב מרווחים מיותרים אם יש
-    const cleanPath = path.trim();
-    
-    try {
-        // ניסיון טעינה
-        const response = await fetch('texts/' + cleanPath);
+        const modal = document.getElementById('text-modal'), area = document.getElementById('text-display-area');
+        modal.style.display = 'flex'; 
+        area.innerHTML = '<div style="text-align:center; padding:20px;">טוען את המילים...</div>';
         
-        if (!response.ok) {
-            throw new Error(`לא הצלחתי למצוא את הקובץ בכתובת: texts/${cleanPath}`);
+        try {
+            // טעינה ישירה מהתיקייה ב-GitHub
+            const response = await fetch('texts/' + path);
+            if (!response.ok) throw new Error("הקובץ לא נמצא בשרת");
+            const content = await response.text();
+            area.innerHTML = content;
+            document.querySelector('.modal-content').scrollTop = 0;
+        } catch(e) { 
+            area.innerHTML = `<div style="text-align:center; color:red; padding:20px;">שגיאה בטעינת הקובץ: texts/${path}</div>`; 
         }
-        
-        const htmlContent = await response.text();
-        area.innerHTML = htmlContent;
-        
-        // גלילה חזרה למעלה בתוך המודל
-        document.querySelector('.modal-content').scrollTop = 0;
-        
-    } catch (e) {
-        console.error(e);
-        area.innerHTML = `
-            <div style="text-align:center; color:red; padding:20px;">
-                <p><strong>שגיאה בטעינת הקטע</strong></p>
-                <p style="font-size:0.8em;">${e.message}</p>
-                <p style="font-size:0.8em; color:gray;">וודא שהקובץ קיים ב-GitHub בתיקיית texts ובנתיב המדויק שכתבת בטבלה.</p>
-            </div>`;
     }
-}
 
     function closeTextModal() { document.getElementById('text-modal').style.display = 'none'; }
     window.onload = init;
