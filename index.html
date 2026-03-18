@@ -10,23 +10,26 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; color: #333; overflow-x: hidden; }
         
         /* Nav & Mobile Menu */
-        nav { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        nav { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; height: 60px; box-sizing: border-box; }
         .logo { font-weight: bold; font-size: 1.2rem; cursor: pointer; }
         .nav-links { display: flex; gap: 20px; }
         .nav-links a { color: white; text-decoration: none; font-weight: 500; cursor: pointer; }
         
         .burger { display: none; cursor: pointer; flex-direction: column; gap: 5px; }
-        .burger div { width: 25px; height: 3px; background: white; }
+        .burger div { width: 25px; height: 3px; background: white; transition: 0.3s; }
 
         @media (max-width: 768px) {
             .nav-links { 
                 display: none; flex-direction: column; position: absolute; 
-                top: 54px; right: 0; width: 100%; background: var(--primary); 
-                padding: 20px; box-sizing: border-box; text-align: center;
+                top: 60px; right: 0; width: 100%; background: var(--primary); 
+                padding: 20px; box-sizing: border-box; text-align: center; box-shadow: 0 5px 10px rgba(0,0,0,0.2);
             }
             .nav-links.active { display: flex; }
             .burger { display: flex; }
         }
+
+        /* Loading States */
+        #loading-screen { position: fixed; top:60px; left:0; width:100%; height:100%; background:var(--bg); display:flex; justify-content:center; align-items:center; z-index:999; font-weight:bold; }
 
         /* Layout */
         .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
@@ -34,36 +37,45 @@
         .section-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--accent); margin: 40px 0 20px; padding-bottom: 10px; }
         
         /* Cards */
-        .card { background: var(--white); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; transition: 0.3s; cursor: pointer; display: flex; flex-direction: column; }
+        .card { background: var(--white); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; transition: 0.3s; cursor: pointer; display: flex; flex-direction: column; height: 100%; }
         .card:hover { transform: translateY(-5px); }
         .card img { width: 100%; height: 200px; object-fit: cover; background: #eee; }
-        .card-content { padding: 15px; flex-grow: 1; }
-        .tag { background: #fff3e0; color: var(--accent); padding: 3px 10px; border-radius: 15px; font-size: 0.75rem; font-weight: bold; display: inline-block; margin-bottom: 10px; }
+        .card-content { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
+        .tag-container { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+        .tag { background: #fff3e0; color: var(--accent); padding: 3px 10px; border-radius: 15px; font-size: 0.75rem; font-weight: bold; }
 
         /* Filters */
         .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 25px; }
-        .filter-btn { background: #ddd; border: none; padding: 8px 18px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        .filter-btn { background: #ddd; border: none; padding: 8px 18px; border-radius: 20px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .filter-btn.active { background: var(--accent); color: white; }
 
-        /* Modals & Lightbox */
+        /* Modals */
         .modal { display: none; position: fixed; z-index: 2000; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; }
-        .modal-content { background: white; width: 90%; max-width: 800px; max-height: 85vh; border-radius: 20px; overflow-y: auto; padding: 40px; position: relative; }
-        #lightbox img { max-width: 90%; max-height: 90%; border-radius: 10px; }
+        .modal-content { background: white; width: 90%; max-width: 800px; max-height: 85vh; border-radius: 20px; overflow-y: auto; padding: 40px; position: relative; box-sizing: border-box; }
+        #lightbox img { max-width: 90%; max-height: 90%; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
         .close { position: absolute; top: 15px; left: 15px; font-size: 35px; cursor: pointer; color: #666; }
+
+        /* Text Display Fixes */
+        #text-display-area img { max-width: 100% !important; height: auto !important; border-radius: 10px; display: block; margin: 20px auto; }
 
         /* Hero */
         .hero { display: flex; gap: 20px; background: var(--white); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); align-items: center; margin-bottom: 30px; }
         .hero-img { flex: 0 0 250px; }
         .hero-img img { width: 100%; border-radius: 15px; cursor: pointer; }
         .joke-box { flex: 1; border-right: 5px solid var(--accent); padding-right: 20px; }
-
         .view-all-btn { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: bold; }
+
+        @media (max-width: 768px) {
+            .hero { flex-direction: column; text-align: center; }
+            .hero-img { flex: none; width: 100%; }
+            .joke-box { border-right: none; border-top: 5px solid var(--accent); padding-top: 20px; padding-right: 0; }
+        }
     </style>
 </head>
 <body>
 
 <nav>
-    <div class="logo" onclick="showPage('home')">לזכרו של ברק לב שלם</div>
+    <div class="logo" onclick="showPage('home')">ברק לב שלם</div>
     <div class="burger" onclick="toggleMenu()"><div></div><div></div><div></div></div>
     <div class="nav-links" id="nav-links">
         <a onclick="showPage('home')">בית</a>
@@ -72,6 +84,8 @@
         <a onclick="showPage('jokes')">בדיחות</a>
     </div>
 </nav>
+
+<div id="loading-screen">טוען זכרונות...</div>
 
 <div class="container" id="main-content"></div>
 
@@ -94,15 +108,33 @@
     let data = { jokes: [], photos: [], texts: [] };
 
     async function init() {
-        const [j, p, t] = await Promise.all([fetchCSV(JOKES_URL, true), fetchCSV(PHOTOS_URL, false), fetchCSV(TEXTS_URL, true)]);
-        data.jokes = j;
-        data.photos = p.slice(1).map(r => ({ title: r[0], id: r[1], category: r[2] || 'כללי' }));
-        data.texts = t;
-        showPage('home');
+        try {
+            // טעינה מקבילית לשיפור המהירות
+            const [jRes, pRes, tRes] = await Promise.all([
+                fetchCSV(JOKES_URL, true),
+                fetchCSV(PHOTOS_URL, false),
+                fetchCSV(TEXTS_URL, true)
+            ]);
+
+            data.jokes = jRes;
+            data.photos = pRes.slice(1).map(r => ({ title: r[0], id: r[1], category: r[2] || 'כללי' }));
+            data.texts = tRes;
+
+            document.getElementById('loading-screen').style.display = 'none';
+            showPage('home');
+        } catch (e) {
+            console.error("טעינה נכשלה:", e);
+            document.getElementById('loading-screen').innerText = "שגיאה בטעינת הנתונים";
+        }
     }
 
     function fetchCSV(url, header) {
-        return new Promise(res => Papa.parse(url, { download: true, header, skipEmptyLines: true, complete: r => res(r.data) }));
+        return new Promise((resolve, reject) => {
+            Papa.parse(url, { download: true, header, skipEmptyLines: true, 
+                complete: r => resolve(r.data), 
+                error: e => reject(e) 
+            });
+        });
     }
 
     function toggleMenu() { document.getElementById('nav-links').classList.toggle('active'); }
@@ -124,10 +156,12 @@
         const randomPhotos = [...data.photos].sort(() => 0.5 - Math.random()).slice(0, 4);
         const randomTexts = [...data.texts].sort(() => 0.5 - Math.random()).slice(0, 3);
 
+        const firstPhotoUrl = `https://lh3.googleusercontent.com/d/${randomPhotos[0]?.id}`;
+
         container.innerHTML = `
             <section class="hero">
-                <div class="hero-img" onclick="openLightbox('https://lh3.googleusercontent.com/d/${randomPhotos[0].id}')">
-                    <img src="https://lh3.googleusercontent.com/d/${randomPhotos[0].id}">
+                <div class="hero-img" onclick="openLightbox('${firstPhotoUrl}')">
+                    <img src="${firstPhotoUrl}">
                 </div>
                 <div class="joke-box">
                     <h3>בדיחה של ברק:</h3>
@@ -143,12 +177,22 @@
     }
 
     function renderArchive(container, title, items, filterKey, cardFunc) {
-        const cats = [...new Set(items.map(i => i[filterKey]?.split(' - ')[1] || i[filterKey] || 'כללי'))];
+        // מנגנון פיצול תגיות חכם (תומך בפסיקים)
+        let allCats = [];
+        items.forEach(item => {
+            const rawCat = item[filterKey] || 'כללי';
+            rawCat.split(',').forEach(c => {
+                let cleanCat = c.trim().replace('היצירה של ברק - ', '');
+                allCats.push(cleanCat);
+            });
+        });
+        const uniqueCats = [...new Set(allCats)];
+
         container.innerHTML = `
             <h1>${title}</h1>
             <div class="filter-bar">
                 <button class="filter-btn active" onclick="filterData(this, 'all')">הכל</button>
-                ${cats.map(c => `<button class="filter-btn" onclick="filterData(this, '${c}')">${c.replace('תיקייה', 'אלבום')}</button>`).join('')}
+                ${uniqueCats.map(c => `<button class="filter-btn" onclick="filterData(this, '${c}')">${c.replace('תיקייה', 'אלבום')}</button>`).join('')}
             </div>
             <div class="grid" id="archive-grid">${items.map(cardFunc).join('')}</div>
         `;
@@ -157,31 +201,39 @@
     function filterData(btn, cat) {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        const cards = document.querySelectorAll('#archive-grid > div');
+        const cards = document.querySelectorAll('#archive-grid > .card');
         cards.forEach(card => {
-            const cardCat = card.getAttribute('data-cat');
-            card.style.display = (cat === 'all' || cardCat.includes(cat)) ? 'flex' : 'none';
+            const cardCats = card.getAttribute('data-cat');
+            card.style.display = (cat === 'all' || cardCats.includes(cat)) ? 'flex' : 'none';
         });
     }
 
     function renderPhotoCard(p) {
+        const url = `https://lh3.googleusercontent.com/d/${p.id}`;
         const cat = p.category.replace('תיקייה', 'אלבום');
-        return `<div class="card" data-cat="${cat}" onclick="openLightbox('https://lh3.googleusercontent.com/d/${p.id}')">
-            <img src="https://lh3.googleusercontent.com/d/${p.id}">
-            <div class="card-content"><span class="tag">${cat}</span><p>${p.title}</p></div>
+        return `<div class="card" data-cat="${cat}" onclick="openLightbox('${url}')">
+            <img src="${url}">
+            <div class="card-content"><div class="tag-container"><span class="tag">${cat}</span></div><p>${p.title}</p></div>
         </div>`;
     }
 
     function renderTextCard(t) {
-        const displayCat = t.Type.includes(' - ') ? t.Type.split(' - ')[1] : t.Type;
-        return `<div class="card" data-cat="${displayCat}" onclick="openText('${t.Link}')">
-            <div class="card-content"><span class="tag">${displayCat}</span><h4>${t.Title}</h4><p>מאת: ${t.Author || 'אנונימי'}</p></div>
+        const cats = t.Type.split(',').map(c => c.trim().replace('היצירה של ברק - ', ''));
+        return `<div class="card" data-cat="${cats.join('|')}" onclick="openText('${t.Link}')">
+            <div class="card-content">
+                <div class="tag-container">${cats.map(c => `<span class="tag">${c}</span>`).join('')}</div>
+                <h4>${t.Title}</h4><p>מאת: ${t.Author || 'אנונימי'}</p>
+            </div>
         </div>`;
     }
 
     function renderJokeCard(j) {
-        return `<div class="card" data-cat="${j.Categories || 'כללי'}">
-            <div class="card-content"><span class="tag">${j.Categories || 'כללי'}</span><p>"${j['Joke Content']}"</p></div>
+        const cats = (j.Categories || 'כללי').split(',').map(c => c.trim());
+        return `<div class="card" data-cat="${cats.join('|')}">
+            <div class="card-content">
+                <div class="tag-container">${cats.map(c => `<span class="tag">${c}</span>`).join('')}</div>
+                <p>"${j['Joke Content']}"</p>
+            </div>
         </div>`;
     }
 
@@ -193,11 +245,24 @@
     async function openText(path) {
         const area = document.getElementById('text-display-area');
         document.getElementById('text-modal').style.display = 'flex';
-        area.innerHTML = 'טוען...';
+        area.innerHTML = '<p style="text-align:center">טוען...</p>';
         try {
             const res = await fetch('texts/' + path.trim());
-            area.innerHTML = res.ok ? await res.text() : 'הקובץ לא נמצא';
-        } catch(e) { area.innerHTML = 'שגיאה בטעינה'; }
+            let html = res.ok ? await res.text() : 'הקובץ לא נמצא';
+            
+            // --- תיקון תמונות גוגל דרייב בתוך המסמך ---
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            tempDiv.querySelectorAll('img').forEach(img => {
+                let src = img.src;
+                if (src.includes('drive.google.com')) {
+                    // המרה לפורמט תצוגה שגוגל לא חוסם
+                    const idMatch = src.match(/id=([^&]+)/) || src.match(/\/d\/([^/]+)/);
+                    if (idMatch) img.src = `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
+                }
+            });
+            area.innerHTML = tempDiv.innerHTML;
+        } catch(e) { area.innerHTML = 'שגיאה בטעינת הקובץ'; }
     }
 
     window.onload = init;
