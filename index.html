@@ -177,3 +177,30 @@
         return `<div class="card" data-cat="${displayCat}" onclick="openText('${t.Link}')">
             <div class="card-content"><span class="tag">${displayCat}</span><h4>${t.Title}</h4><p>מאת: ${t.Author || 'אנונימי'}</p></div>
         </div>`;
+    }
+
+    function renderJokeCard(j) {
+        return `<div class="card" data-cat="${j.Categories || 'כללי'}">
+            <div class="card-content"><span class="tag">${j.Categories || 'כללי'}</span><p>"${j['Joke Content']}"</p></div>
+        </div>`;
+    }
+
+    function openLightbox(src) { 
+        document.getElementById('lightbox-img').src = src; 
+        document.getElementById('lightbox').style.display = 'flex'; 
+    }
+
+    async function openText(path) {
+        const area = document.getElementById('text-display-area');
+        document.getElementById('text-modal').style.display = 'flex';
+        area.innerHTML = 'טוען...';
+        try {
+            const res = await fetch('texts/' + path.trim());
+            area.innerHTML = res.ok ? await res.text() : 'הקובץ לא נמצא';
+        } catch(e) { area.innerHTML = 'שגיאה בטעינה'; }
+    }
+
+    window.onload = init;
+</script>
+</body>
+</html>
