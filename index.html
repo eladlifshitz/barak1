@@ -133,13 +133,39 @@
     function openImg(src) { document.getElementById('lightbox-img').src = src; document.getElementById('lightbox').style.display = 'flex'; }
     
     async function openText(path) {
-        const modal = document.getElementById('text-modal'), area = document.getElementById('text-display-area');
-        modal.style.display = 'flex'; area.innerHTML = '<p>טוען...</p>';
-        try {
-            const res = await fetch(`./texts/${path}`);
-            area.innerHTML = res.ok ? await res.text() : '<p>הקובץ לא נמצא. וודא שהוא בתיקיית texts ב-GitHub.</p>';
-        } catch(e) { area.innerHTML = '<p>שגיאה בטעינה.</p>'; }
+    const modal = document.getElementById('text-modal');
+    const area = document.getElementById('text-display-area');
+    
+    modal.style.display = 'flex';
+    area.innerHTML = '<p style="text-align:center;">טוען את המילים...</p>';
+
+    // ניקוי הנתיב מרווחים מיותרים אם יש
+    const cleanPath = path.trim();
+    
+    try {
+        // ניסיון טעינה
+        const response = await fetch('texts/' + cleanPath);
+        
+        if (!response.ok) {
+            throw new Error(`לא הצלחתי למצוא את הקובץ בכתובת: texts/${cleanPath}`);
+        }
+        
+        const htmlContent = await response.text();
+        area.innerHTML = htmlContent;
+        
+        // גלילה חזרה למעלה בתוך המודל
+        document.querySelector('.modal-content').scrollTop = 0;
+        
+    } catch (e) {
+        console.error(e);
+        area.innerHTML = `
+            <div style="text-align:center; color:red; padding:20px;">
+                <p><strong>שגיאה בטעינת הקטע</strong></p>
+                <p style="font-size:0.8em;">${e.message}</p>
+                <p style="font-size:0.8em; color:gray;">וודא שהקובץ קיים ב-GitHub בתיקיית texts ובנתיב המדויק שכתבת בטבלה.</p>
+            </div>`;
     }
+}
 
     function closeTextModal() { document.getElementById('text-modal').style.display = 'none'; }
     window.onload = init;
