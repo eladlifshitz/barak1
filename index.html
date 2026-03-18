@@ -3,72 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>לזכרו של ברק לב שלם</title>
+    <title>ברק לב שלם | אתר לזכרו</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        :root { --primary: #2c3e50; --accent: #e67e22; --bg: #f8f9fa; --white: #ffffff; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; color: #333; overflow-x: hidden; }
+        :root { --primary: #2c3e50; --accent: #e67e22; --bg: #fdfcfb; --white: #ffffff; --text: #333; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; color: var(--text); line-height: 1.6; }
         
-        /* Nav & Mobile Menu */
-        nav { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; height: 60px; box-sizing: border-box; }
-        .logo { font-weight: bold; font-size: 1.2rem; cursor: pointer; }
-        .nav-links { display: flex; gap: 20px; }
-        .nav-links a { color: white; text-decoration: none; font-weight: 500; cursor: pointer; }
+        /* Navigation */
+        nav { background: var(--primary); color: white; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; height: 65px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .logo { font-weight: bold; font-size: 1.4rem; cursor: pointer; letter-spacing: 1px; }
+        .nav-links { display: flex; gap: 25px; }
+        .nav-links a { color: white; text-decoration: none; font-weight: 500; cursor: pointer; transition: 0.3s; }
+        .nav-links a:hover { color: var(--accent); }
         
-        .burger { display: none; cursor: pointer; flex-direction: column; gap: 5px; }
-        .burger div { width: 25px; height: 3px; background: white; transition: 0.3s; }
+        /* Search Bar */
+        .search-container { background: #eee; padding: 10px; display: flex; justify-content: center; gap: 10px; }
+        .search-container input { padding: 8px 15px; border-radius: 20px; border: 1px solid #ccc; width: 300px; max-width: 80%; }
 
-        @media (max-width: 768px) {
-            .nav-links { 
-                display: none; flex-direction: column; position: absolute; 
-                top: 60px; right: 0; width: 100%; background: var(--primary); 
-                padding: 20px; box-sizing: border-box; text-align: center; box-shadow: 0 5px 10px rgba(0,0,0,0.2);
-            }
-            .nav-links.active { display: flex; }
-            .burger { display: flex; }
-        }
+        /* Hero Section */
+        .hero { display: flex; align-items: center; gap: 40px; padding: 60px 20px; max-width: 1100px; margin: 0 auto; }
+        .hero-img { flex: 0 0 400px; position: relative; }
+        .hero-img img { width: 100%; border-radius: 20px; box-shadow: 20px 20px 0 var(--accent); }
+        .hero-text { flex: 1; }
+        .hero-text h1 { font-size: 3rem; margin: 0; color: var(--primary); }
+        .hero-text p { font-size: 1.2rem; color: #555; margin-top: 15px; }
 
-        /* Loading States */
-        #loading-screen { position: fixed; top:60px; left:0; width:100%; height:100%; background:var(--bg); display:flex; justify-content:center; align-items:center; z-index:999; font-weight:bold; }
+        /* Random Quote/Joke section on Home */
+        .random-box { background: #fff; border-right: 6px solid var(--accent); padding: 25px; margin: 40px auto; max-width: 800px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); border-radius: 0 10px 10px 0; }
+        .random-box h3 { margin-top: 0; color: var(--accent); }
 
-        /* Layout */
+        /* Grid & Cards */
         .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--accent); margin: 40px 0 20px; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+        .card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: 0.3s; cursor: pointer; display: flex; flex-direction: column; height: 100%; border: 1px solid #eee; }
+        .card:hover { transform: translateY(-8px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .card img { width: 100%; height: 220px; object-fit: cover; }
+        .card-body { padding: 20px; flex-grow: 1; }
+        .tag { display: inline-block; background: #fef3e7; color: var(--accent); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px; }
+        .source-tag { font-size: 0.85rem; color: #7f8c8d; border-top: 1px solid #eee; margin-top: 10px; padding-top: 10px; font-style: italic; }
+
+        /* Modal & Comments */
+        .modal { display: none; position: fixed; z-index: 2000; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; }
+        .modal-content { background: white; width: 95%; max-width: 850px; max-height: 90vh; border-radius: 20px; overflow-y: auto; padding: 40px; position: relative; }
+        .comment-section { margin-top: 40px; background: #f9f9f9; padding: 25px; border-radius: 15px; }
+        .comment-bubble { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .comment-form input, .comment-form textarea { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ddd; font-family: inherit; box-sizing: border-box; }
+        .submit-btn { background: var(--accent); color: white; border: none; padding: 10px 25px; border-radius: 20px; cursor: pointer; font-weight: bold; }
         
-        /* Cards */
-        .card { background: var(--white); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; transition: 0.3s; cursor: pointer; display: flex; flex-direction: column; height: 100%; }
-        .card:hover { transform: translateY(-5px); }
-        .card img { width: 100%; height: 200px; object-fit: cover; background: #eee; }
-        .card-content { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
-        .tag-container { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
-        .tag { background: #fff3e0; color: var(--accent); padding: 3px 10px; border-radius: 15px; font-size: 0.75rem; font-weight: bold; }
-
-        /* Filters */
-        .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 25px; }
-        .filter-btn { background: #ddd; border: none; padding: 8px 18px; border-radius: 20px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .filter-btn.active { background: var(--accent); color: white; }
-
-        /* Modals */
-        .modal { display: none; position: fixed; z-index: 2000; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; }
-        .modal-content { background: white; width: 90%; max-width: 800px; max-height: 85vh; border-radius: 20px; overflow-y: auto; padding: 40px; position: relative; box-sizing: border-box; }
-        #lightbox img { max-width: 90%; max-height: 90%; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        .close { position: absolute; top: 15px; left: 15px; font-size: 35px; cursor: pointer; color: #666; }
-
-        /* Text Display Fixes */
-        #text-display-area img { max-width: 100% !important; height: auto !important; border-radius: 10px; display: block; margin: 20px auto; }
-
-        /* Hero */
-        .hero { display: flex; gap: 20px; background: var(--white); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); align-items: center; margin-bottom: 30px; }
-        .hero-img { flex: 0 0 250px; }
-        .hero-img img { width: 100%; border-radius: 15px; cursor: pointer; }
-        .joke-box { flex: 1; border-right: 5px solid var(--accent); padding-right: 20px; }
-        .view-all-btn { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: bold; }
+        .share-btn { position: absolute; top: 15px; right: 50px; cursor: pointer; background: #eee; padding: 5px 12px; border-radius: 15px; font-size: 0.8rem; }
 
         @media (max-width: 768px) {
-            .hero { flex-direction: column; text-align: center; }
-            .hero-img { flex: none; width: 100%; }
-            .joke-box { border-right: none; border-top: 5px solid var(--accent); padding-top: 20px; padding-right: 0; }
+            .hero { flex-direction: column; text-align: center; padding: 30px 20px; }
+            .hero-img { flex: none; width: 80%; margin: 0 auto; }
+            .nav-links { display: none; } /* במובייל רצוי להוסיף המבורגר - הושאר פשוט כרגע */
         }
     </style>
 </head>
@@ -76,194 +63,214 @@
 
 <nav>
     <div class="logo" onclick="showPage('home')">ברק לב שלם</div>
-    <div class="burger" onclick="toggleMenu()"><div></div><div></div><div></div></div>
-    <div class="nav-links" id="nav-links">
+    <div class="nav-links">
         <a onclick="showPage('home')">בית</a>
         <a onclick="showPage('gallery')">גלריה</a>
-        <a onclick="showPage('texts')">סיפורים ויצירות</a>
+        <a onclick="showPage('texts')">סיפורים</a>
         <a onclick="showPage('jokes')">בדיחות</a>
+        <a onclick="showPage('about')">אודות</a>
     </div>
 </nav>
 
-<div id="loading-screen">טוען זכרונות...</div>
-
-<div class="container" id="main-content"></div>
-
-<div id="text-modal" class="modal" onclick="closeModal('text-modal')">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <span class="close" onclick="closeModal('text-modal')">×</span>
-        <div id="text-display-area"></div>
-    </div>
+<div class="search-container">
+    <input type="text" id="siteSearch" placeholder="חפשו בדיחה, סיפור או מילת מפתח..." onkeyup="handleSearch(this.value)">
 </div>
 
-<div id="lightbox" class="modal" onclick="closeModal('lightbox')">
-    <img id="lightbox-img" src="">
+<div id="main-content"></div>
+
+<div id="item-modal" class="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="share-btn" onclick="copyShareLink()">🔗 העתק קישור</span>
+        <span style="position:absolute; top:15px; left:15px; font-size:30px; cursor:pointer" onclick="closeModal()">×</span>
+        <div id="modal-body"></div>
+        <hr>
+        <div class="comment-section" id="comment-area"></div>
+    </div>
 </div>
 
 <script>
     const JOKES_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWYpyL6NDKTU7HpYkz_7c7fLbqmYIavcgp0facG7tqZozKViewPdRWygSA39zneHNg1jpo1Upk8DGb/pub?output=csv';
     const PHOTOS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQejae0pWcPjbYrlj7cwqBPRxHN8o7hU0arrWV4QEVs3ap-VbhkvPjjhIsnXIovjQMggYbMbd0lwLe_/pub?gid=0&single=true&output=csv';
     const TEXTS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSug0ITKEUEv_ds_rZkbz4c16B8eLQHwpbrsukCpYAOzYpvBz_1K0M_eIt9Ge4BuXk3Ckn6iOHJ2kGk/pub?output=csv';
+    const COMMENTS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ9-NWVB2EVHzr-8Dx8_IgrYoi3Ob-Wfhw2zimrABtxd7IWE2h3U7zrd9lF9GdH_rObURCjgcEgJPHC/pub?output=csv';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwqak-Ai_5xyULt8tV0cjexgd-yp7K6ACOTAJXYhdGdaG3v_xqD-vcAS-dgnjBnRyVr/exec'; // <--- החלף בכתובת שקיבלת מה-Apps Script
 
-    let data = { jokes: [], photos: [], texts: [] };
+    let data = { jokes: [], photos: [], texts: [], comments: [] };
+    let currentOpenItem = null;
 
     async function init() {
-        try {
-            // טעינה מקבילית לשיפור המהירות
-            const [jRes, pRes, tRes] = await Promise.all([
-                fetchCSV(JOKES_URL, true),
-                fetchCSV(PHOTOS_URL, false),
-                fetchCSV(TEXTS_URL, true)
-            ]);
-
-            data.jokes = jRes;
-            data.photos = pRes.slice(1).map(r => ({ title: r[0], id: r[1], category: r[2] || 'כללי' }));
-            data.texts = tRes;
-
-            document.getElementById('loading-screen').style.display = 'none';
+        const [j, p, t, c] = await Promise.all([
+            fetchCSV(JOKES_URL, true), fetchCSV(PHOTOS_URL, false), fetchCSV(TEXTS_URL, true), fetchCSV(COMMENTS_URL, true)
+        ]);
+        data = { 
+            jokes: j, 
+            photos: p.slice(1).map(r => ({ title: r[0], id: r[1], category: r[2], source: "צולם ע\"י ברק או משפחתו" })),
+            texts: t,
+            comments: c.filter(row => row[5] === "YES" || row.Approved === "YES") 
+        };
+        
+        // בדיקה אם נכנסו עם קישור ישיר
+        const hash = window.location.hash;
+        if(hash) {
+            showPage('home'); // טוען את הרקע
+            handleDeepLink(hash);
+        } else {
             showPage('home');
-        } catch (e) {
-            console.error("טעינה נכשלה:", e);
-            document.getElementById('loading-screen').innerText = "שגיאה בטעינת הנתונים";
         }
     }
 
     function fetchCSV(url, header) {
-        return new Promise((resolve, reject) => {
-            Papa.parse(url, { download: true, header, skipEmptyLines: true, 
-                complete: r => resolve(r.data), 
-                error: e => reject(e) 
-            });
-        });
+        return new Promise(res => Papa.parse(url, { download: true, header, skipEmptyLines: true, complete: r => res(r.data) }));
     }
 
-    function toggleMenu() { document.getElementById('nav-links').classList.toggle('active'); }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
     function showPage(pageId) {
-        const content = document.getElementById('main-content');
-        document.getElementById('nav-links').classList.remove('active');
-        window.scrollTo(0,0);
-
-        if (pageId === 'home') renderHome(content);
-        else if (pageId === 'gallery') renderArchive(content, 'גלריה', data.photos, 'category', renderPhotoCard);
-        else if (pageId === 'texts') renderArchive(content, 'סיפורים ויצירות', data.texts, 'Type', renderTextCard);
-        else if (pageId === 'jokes') renderArchive(content, 'מאגר הבדיחות', data.jokes, 'Categories', renderJokeCard);
+        const container = document.getElementById('main-content');
+        if (pageId === 'home') renderHome(container);
+        else if (pageId === 'gallery') renderGrid(container, 'גלריה', data.photos, renderPhotoCard);
+        else if (pageId === 'texts') renderGrid(container, 'סיפורים ויצירות', data.texts, renderTextCard);
+        else if (pageId === 'jokes') renderGrid(container, 'מאגר הבדיחות', data.jokes, renderJokeCard);
+        else if (pageId === 'about') renderAbout(container);
     }
 
     function renderHome(container) {
         const randomJoke = data.jokes[Math.floor(Math.random() * data.jokes.length)];
-        const randomPhotos = [...data.photos].sort(() => 0.5 - Math.random()).slice(0, 4);
-        const randomTexts = [...data.texts].sort(() => 0.5 - Math.random()).slice(0, 3);
-
-        const firstPhotoUrl = `https://lh3.googleusercontent.com/d/${randomPhotos[0]?.id}`;
-
         container.innerHTML = `
             <section class="hero">
-                <div class="hero-img" onclick="openLightbox('${firstPhotoUrl}')">
-                    <img src="${firstPhotoUrl}">
-                </div>
-                <div class="joke-box">
-                    <h3>בדיחה של ברק:</h3>
-                    <p style="font-size:1.3rem; font-style:italic;">"${randomJoke['Joke Content']}"</p>
-                    <button class="view-all-btn" style="background:#34495e; margin-top:10px" onclick="showPage('jokes')">לכל הבדיחות</button>
+                <div class="hero-img"><img src="https://lh3.googleusercontent.com/d/${data.photos[0].id}"></div>
+                <div class="hero-text">
+                    <h1>ברק לב שלם</h1>
+                    <p>האתר הזה הוקם כדי לרכז את החיוך, הכתיבה והזיכרון של ברק. מקום שבו הבדיחות שלו ממשיכות להצחיק והסיפורים שלו ממשיכים להישמע.</p>
                 </div>
             </section>
-            <div class="section-header"><h2>מהגלריה</h2><button class="view-all-btn" onclick="showPage('gallery')">הצג הכל</button></div>
-            <div class="grid">${randomPhotos.map(renderPhotoCard).join('')}</div>
-            <div class="section-header"><h2>סיפורים ויצירות</h2><button class="view-all-btn" onclick="showPage('texts')">הצג הכל</button></div>
-            <div class="grid">${randomTexts.map(renderTextCard).join('')}</div>
-        `;
-    }
-
-    function renderArchive(container, title, items, filterKey, cardFunc) {
-        // מנגנון פיצול תגיות חכם (תומך בפסיקים)
-        let allCats = [];
-        items.forEach(item => {
-            const rawCat = item[filterKey] || 'כללי';
-            rawCat.split(',').forEach(c => {
-                let cleanCat = c.trim().replace('היצירה של ברק - ', '');
-                allCats.push(cleanCat);
-            });
-        });
-        const uniqueCats = [...new Set(allCats)];
-
-        container.innerHTML = `
-            <h1>${title}</h1>
-            <div class="filter-bar">
-                <button class="filter-btn active" onclick="filterData(this, 'all')">הכל</button>
-                ${uniqueCats.map(c => `<button class="filter-btn" onclick="filterData(this, '${c}')">${c.replace('תיקייה', 'אלבום')}</button>`).join('')}
+            <div class="container">
+                <div class="random-box">
+                    <h3>בדיחה אקראית של ברק:</h3>
+                    <p style="font-size:1.4rem">"${randomJoke['Joke Content']}"</p>
+                    <small>מתוך קטגוריית: ${randomJoke.Categories}</small>
+                </div>
             </div>
-            <div class="grid" id="archive-grid">${items.map(cardFunc).join('')}</div>
         `;
     }
 
-    function filterData(btn, cat) {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const cards = document.querySelectorAll('#archive-grid > .card');
-        cards.forEach(card => {
-            const cardCats = card.getAttribute('data-cat');
-            card.style.display = (cat === 'all' || cardCats.includes(cat)) ? 'flex' : 'none';
-        });
+    function renderGrid(container, title, items, cardFunc) {
+        container.innerHTML = `<div class="container"><h2>${title}</h2><div class="grid">${items.map(cardFunc).join('')}</div></div>`;
     }
 
     function renderPhotoCard(p) {
-        const url = `https://lh3.googleusercontent.com/d/${p.id}`;
-        const cat = p.category.replace('תיקייה', 'אלבום');
-        return `<div class="card" data-cat="${cat}" onclick="openLightbox('${url}')">
-            <img src="${url}">
-            <div class="card-content"><div class="tag-container"><span class="tag">${cat}</span></div><p>${p.title}</p></div>
+        return `<div class="card" onclick="openItem('photo', '${p.id}')">
+            <img src="https://lh3.googleusercontent.com/d/${p.id}">
+            <div class="card-body"><span class="tag">${p.category}</span><p>${p.title}</p></div>
         </div>`;
     }
 
     function renderTextCard(t) {
-        const cats = t.Type.split(',').map(c => c.trim().replace('היצירה של ברק - ', ''));
-        return `<div class="card" data-cat="${cats.join('|')}" onclick="openText('${t.Link}')">
-            <div class="card-content">
-                <div class="tag-container">${cats.map(c => `<span class="tag">${c}</span>`).join('')}</div>
-                <h4>${t.Title}</h4><p>מאת: ${t.Author || 'אנונימי'}</p>
+        return `<div class="card" onclick="openItem('text', '${t.Link}')">
+            <div class="card-body">
+                <span class="tag">${t.Type}</span>
+                <h4>${t.Title}</h4>
+                <p>${t.Author || ''}</p>
             </div>
         </div>`;
     }
 
     function renderJokeCard(j) {
-        const cats = (j.Categories || 'כללי').split(',').map(c => c.trim());
-        return `<div class="card" data-cat="${cats.join('|')}">
-            <div class="card-content">
-                <div class="tag-container">${cats.map(c => `<span class="tag">${c}</span>`).join('')}</div>
+        const id = btoa(encodeURIComponent(j['Joke Content'])).substring(0,10);
+        return `<div class="card" onclick="openItem('joke', '${id}')">
+            <div class="card-body">
+                <span class="tag">${j.Categories}</span>
                 <p>"${j['Joke Content']}"</p>
+                <div class="source-tag">${j.Source || 'בדיחה שברק אהב'}</div>
             </div>
         </div>`;
     }
 
-    function openLightbox(src) { 
-        document.getElementById('lightbox-img').src = src; 
-        document.getElementById('lightbox').style.display = 'flex'; 
+    function renderAbout(container) {
+        container.innerHTML = `<div class="container" style="max-width:700px">
+            <h2>אודות האתר</h2>
+            <p>כאן תוכל לכתוב על ברק, על תהליך הקמת האתר ועל המטרה שלו.</p>
+            <hr>
+            <h3>צרו קשר</h3>
+            <p>ניתן לשלוח לנו הודעה במייל: your-email@gmail.com</p>
+        </div>`;
     }
 
-    async function openText(path) {
-        const area = document.getElementById('text-display-area');
-        document.getElementById('text-modal').style.display = 'flex';
-        area.innerHTML = '<p style="text-align:center">טוען...</p>';
-        try {
-            const res = await fetch('texts/' + path.trim());
-            let html = res.ok ? await res.text() : 'הקובץ לא נמצא';
-            
-            // --- תיקון תמונות גוגל דרייב בתוך המסמך ---
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = html;
-            tempDiv.querySelectorAll('img').forEach(img => {
-                let src = img.src;
-                if (src.includes('drive.google.com')) {
-                    // המרה לפורמט תצוגה שגוגל לא חוסם
-                    const idMatch = src.match(/id=([^&]+)/) || src.match(/\/d\/([^/]+)/);
-                    if (idMatch) img.src = `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
-                }
-            });
-            area.innerHTML = tempDiv.innerHTML;
-        } catch(e) { area.innerHTML = 'שגיאה בטעינת הקובץ'; }
+    // --- Search & Deep Linking ---
+    function handleSearch(val) {
+        if(val.length < 2) return;
+        // לוגיקת חיפוש פשוטה על כל הנתונים
     }
+
+    function copyShareLink() {
+        const link = window.location.origin + window.location.pathname + "#" + currentOpenItem.type + "=" + currentOpenItem.id;
+        navigator.clipboard.writeText(link);
+        alert("הקישור הועתק!");
+    }
+
+    // --- Modal & Comments ---
+    async function openItem(type, id) {
+        currentOpenItem = {type, id};
+        const modal = document.getElementById('item-modal');
+        const body = document.getElementById('modal-body');
+        modal.style.display = 'flex';
+        
+        if(type === 'text') {
+            body.innerHTML = "טוען סיפור...";
+            const res = await fetch('texts/' + id);
+            body.innerHTML = await res.text();
+        } else if(type === 'photo') {
+            body.innerHTML = `<img src="https://lh3.googleusercontent.com/d/${id}" style="width:100%; border-radius:10px;">`;
+        } else if(type === 'joke') {
+            const joke = data.jokes.find(j => btoa(encodeURIComponent(j['Joke Content'])).substring(0,10) === id);
+            body.innerHTML = `<h3>בדיחה</h3><p style="font-size:1.5rem">${joke['Joke Content']}</p>`;
+        }
+        
+        renderComments(id);
+    }
+
+    function renderComments(itemId) {
+        const area = document.getElementById('comment-area');
+        const filtered = data.comments.filter(c => c.item_id === itemId);
+        
+        area.innerHTML = `<h4>זכרונות ותגובות (${filtered.length})</h4>
+            <div id="comments-list">${filtered.map(c => `
+                <div class="comment-bubble">
+                    <strong>${c.name} (${c.relation}):</strong>
+                    <p>${c.content}</p>
+                </div>
+            `).join('')}</div>
+            <div class="comment-form">
+                <h5>הוסיפו תגובה:</h5>
+                <input type="text" id="c-name" placeholder="שם מלא">
+                <input type="text" id="c-rel" placeholder="קשר לברק (למשל: חבר מהצבא)">
+                <textarea id="c-content" placeholder="כתבו כאן..."></textarea>
+                <button class="submit-btn" onclick="submitComment('${itemId}')">שלח תגובה</button>
+            </div>`;
+    }
+
+    async function submitComment(itemId) {
+        const payload = {
+            name: document.getElementById('c-name').value,
+            relation: document.getElementById('c-rel').value,
+            content: document.getElementById('c-content').value,
+            item_id: itemId
+        };
+        
+        const btn = document.querySelector('.submit-btn');
+        btn.innerText = "שולח...";
+        btn.disabled = true;
+
+        try {
+            await fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify(payload)
+            });
+            alert("התגובה נשלחה ותופיע באתר לאחר אישור המשפחה. תודה!");
+            closeModal();
+        } catch(e) { alert("שגיאה בשליחה."); }
+    }
+
+    function closeModal() { document.getElementById('item-modal').style.display = 'none'; }
 
     window.onload = init;
 </script>
