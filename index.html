@@ -9,54 +9,55 @@
         :root { --primary: #2c3e50; --accent: #e67e22; --bg: #f8f9fa; --white: #ffffff; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; color: #333; overflow-x: hidden; }
         
-        /* Navigation & Burger */
-        nav { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        /* Nav & Mobile Menu */
+        nav { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
         .logo { font-weight: bold; font-size: 1.2rem; cursor: pointer; }
         .nav-links { display: flex; gap: 20px; }
         .nav-links a { color: white; text-decoration: none; font-weight: 500; cursor: pointer; }
-        .burger { display: none; cursor: pointer; flex-direction: column; gap: 5px; }
-        .burger div { width: 25px; height: 3px; background: white; transition: 0.3s; }
-
-        /* General Layout */
-        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--accent); margin: 40px 0 20px; padding-bottom: 10px; }
-        .view-all-btn { background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: bold; }
         
-        /* Grid Systems */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-        .card { background: var(--white); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; transition: 0.3s; cursor: pointer; position: relative; }
+        .burger { display: none; cursor: pointer; flex-direction: column; gap: 5px; }
+        .burger div { width: 25px; height: 3px; background: white; }
+
+        @media (max-width: 768px) {
+            .nav-links { 
+                display: none; flex-direction: column; position: absolute; 
+                top: 54px; right: 0; width: 100%; background: var(--primary); 
+                padding: 20px; box-sizing: border-box; text-align: center;
+            }
+            .nav-links.active { display: flex; }
+            .burger { display: flex; }
+        }
+
+        /* Layout */
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--accent); margin: 40px 0 20px; padding-bottom: 10px; }
+        
+        /* Cards */
+        .card { background: var(--white); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; transition: 0.3s; cursor: pointer; display: flex; flex-direction: column; }
         .card:hover { transform: translateY(-5px); }
-        .card img { width: 100%; height: 180px; object-fit: cover; }
-        .card-content { padding: 15px; }
-        .tag { background: #fff3e0; color: var(--accent); padding: 3px 10px; border-radius: 15px; font-size: 0.75rem; font-weight: bold; }
+        .card img { width: 100%; height: 200px; object-fit: cover; background: #eee; }
+        .card-content { padding: 15px; flex-grow: 1; }
+        .tag { background: #fff3e0; color: var(--accent); padding: 3px 10px; border-radius: 15px; font-size: 0.75rem; font-weight: bold; display: inline-block; margin-bottom: 10px; }
 
         /* Filters */
         .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 25px; }
-        .filter-btn { background: #eee; border: none; padding: 6px 15px; border-radius: 20px; cursor: pointer; }
+        .filter-btn { background: #ddd; border: none; padding: 8px 18px; border-radius: 20px; cursor: pointer; font-weight: bold; }
         .filter-btn.active { background: var(--accent); color: white; }
 
-        /* Hero / Joke Box */
-        .hero { display: flex; gap: 20px; background: var(--white); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); align-items: center; margin-top: 20px; }
+        /* Modals & Lightbox */
+        .modal { display: none; position: fixed; z-index: 2000; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; }
+        .modal-content { background: white; width: 90%; max-width: 800px; max-height: 85vh; border-radius: 20px; overflow-y: auto; padding: 40px; position: relative; }
+        #lightbox img { max-width: 90%; max-height: 90%; border-radius: 10px; }
+        .close { position: absolute; top: 15px; left: 15px; font-size: 35px; cursor: pointer; color: #666; }
+
+        /* Hero */
+        .hero { display: flex; gap: 20px; background: var(--white); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); align-items: center; margin-bottom: 30px; }
         .hero-img { flex: 0 0 250px; }
-        .hero-img img { width: 100%; border-radius: 15px; }
+        .hero-img img { width: 100%; border-radius: 15px; cursor: pointer; }
         .joke-box { flex: 1; border-right: 5px solid var(--accent); padding-right: 20px; }
 
-        /* Modal */
-        .modal { display: none; position: fixed; z-index: 2000; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); justify-content: center; align-items: center; }
-        .modal-content { background: white; width: 90%; max-width: 800px; max-height: 85vh; border-radius: 20px; overflow-y: auto; padding: 40px; position: relative; }
-        .close { position: absolute; top: 15px; left: 15px; font-size: 30px; cursor: pointer; }
-        #text-display-area { line-height: 1.8; }
-        #text-display-area img { max-width: 100%; height: auto; display: block; margin: 20px auto; border-radius: 10px; }
-
-        /* Mobile Adjustments */
-        @media (max-width: 768px) {
-            .nav-links { display: none; flex-direction: column; position: absolute; top: 60px; left: 0; width: 100%; background: var(--primary); padding: 20px; gap: 15px; }
-            .nav-links.active { display: flex; }
-            .burger { display: flex; }
-            .hero { flex-direction: column; text-align: center; }
-            .hero-img { flex: none; width: 100%; }
-            .joke-box { border-right: none; border-top: 5px solid var(--accent); padding: 20px 0 0; }
-        }
+        .view-all-btn { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -72,14 +73,17 @@
     </div>
 </nav>
 
-<div class="container" id="main-content">
-    </div>
+<div class="container" id="main-content"></div>
 
-<div id="text-modal" class="modal" onclick="this.style.display='none'">
+<div id="text-modal" class="modal" onclick="closeModal('text-modal')">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <span class="close" onclick="document.getElementById('text-modal').style.display='none'">×</span>
+        <span class="close" onclick="closeModal('text-modal')">×</span>
         <div id="text-display-area"></div>
     </div>
+</div>
+
+<div id="lightbox" class="modal" onclick="closeModal('lightbox')">
+    <img id="lightbox-img" src="">
 </div>
 
 <script>
@@ -90,10 +94,10 @@
     let data = { jokes: [], photos: [], texts: [] };
 
     async function init() {
-        data.jokes = await fetchCSV(JOKES_URL, true);
-        const pRaw = await fetchCSV(PHOTOS_URL, false);
-        data.photos = pRaw.slice(1).map(r => ({ title: r[0], id: r[1], album: r[2] }));
-        data.texts = await fetchCSV(TEXTS_URL, true);
+        const [j, p, t] = await Promise.all([fetchCSV(JOKES_URL, true), fetchCSV(PHOTOS_URL, false), fetchCSV(TEXTS_URL, true)]);
+        data.jokes = j;
+        data.photos = p.slice(1).map(r => ({ title: r[0], id: r[1], category: r[2] || 'כללי' }));
+        data.texts = t;
         showPage('home');
     }
 
@@ -102,6 +106,7 @@
     }
 
     function toggleMenu() { document.getElementById('nav-links').classList.toggle('active'); }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
     function showPage(pageId) {
         const content = document.getElementById('main-content');
@@ -109,12 +114,10 @@
         window.scrollTo(0,0);
 
         if (pageId === 'home') renderHome(content);
-        if (pageId === 'gallery') renderArchive(content, 'גלריית תמונות', data.photos, 'album', renderPhotoCard);
-        if (pageId === 'texts') renderArchive(content, 'סיפורים ויצירות', data.texts, 'Type', renderTextCard);
-        if (pageId === 'jokes') renderArchive(content, 'מאגר הבדיחות', data.jokes, 'Categories', renderJokeCard);
+        else if (pageId === 'gallery') renderArchive(content, 'גלריה', data.photos, 'category', renderPhotoCard);
+        else if (pageId === 'texts') renderArchive(content, 'סיפורים ויצירות', data.texts, 'Type', renderTextCard);
+        else if (pageId === 'jokes') renderArchive(content, 'מאגר הבדיחות', data.jokes, 'Categories', renderJokeCard);
     }
-
-    // --- Renderers ---
 
     function renderHome(container) {
         const randomJoke = data.jokes[Math.floor(Math.random() * data.jokes.length)];
@@ -123,63 +126,54 @@
 
         container.innerHTML = `
             <section class="hero">
-                <div class="hero-img"><img src="https://googleusercontent.com/profile/picture/1${randomPhotos[0]?.id}"></div>
+                <div class="hero-img" onclick="openLightbox('https://lh3.googleusercontent.com/d/${randomPhotos[0].id}')">
+                    <img src="https://lh3.googleusercontent.com/d/${randomPhotos[0].id}">
+                </div>
                 <div class="joke-box">
                     <h3>בדיחה של ברק:</h3>
                     <p style="font-size:1.3rem; font-style:italic;">"${randomJoke['Joke Content']}"</p>
+                    <button class="view-all-btn" style="background:#34495e; margin-top:10px" onclick="showPage('jokes')">לכל הבדיחות</button>
                 </div>
             </section>
-
-            <div class="section-header"><h2>טעימה מהגלריה</h2><button class="view-all-btn" onclick="showPage('gallery')">לכל האלבומים</button></div>
+            <div class="section-header"><h2>מהגלריה</h2><button class="view-all-btn" onclick="showPage('gallery')">הצג הכל</button></div>
             <div class="grid">${randomPhotos.map(renderPhotoCard).join('')}</div>
-
-            <div class="section-header"><h2>סיפורים ויצירות</h2><button class="view-all-btn" onclick="showPage('texts')">לארכיון המלא</button></div>
+            <div class="section-header"><h2>סיפורים ויצירות</h2><button class="view-all-btn" onclick="showPage('texts')">הצג הכל</button></div>
             <div class="grid">${randomTexts.map(renderTextCard).join('')}</div>
         `;
     }
 
     function renderArchive(container, title, items, filterKey, cardFunc) {
-        const categories = [...new Set(items.map(i => i[filterKey] || 'כללי'))];
+        const cats = [...new Set(items.map(i => i[filterKey]?.split(' - ')[1] || i[filterKey] || 'כללי'))];
         container.innerHTML = `
             <h1>${title}</h1>
             <div class="filter-bar">
-                <button class="filter-btn active" onclick="filterItems(this, 'all')">הכל</button>
-                ${categories.map(c => `<button class="filter-btn" onclick="filterItems(this, '${c}')">${c.replace('תיקייה', 'אלבום')}</button>`).join('')}
+                <button class="filter-btn active" onclick="filterData(this, 'all')">הכל</button>
+                ${cats.map(c => `<button class="filter-btn" onclick="filterData(this, '${c}')">${c.replace('תיקייה', 'אלבום')}</button>`).join('')}
             </div>
             <div class="grid" id="archive-grid">${items.map(cardFunc).join('')}</div>
         `;
     }
 
-    function filterItems(btn, cat) {
+    function filterData(btn, cat) {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        // לוגיקת סינון פשוטה תתווסף כאן אם תרצה, כרגע מציג הכל
+        const cards = document.querySelectorAll('#archive-grid > div');
+        cards.forEach(card => {
+            const cardCat = card.getAttribute('data-cat');
+            card.style.display = (cat === 'all' || cardCat.includes(cat)) ? 'flex' : 'none';
+        });
     }
 
     function renderPhotoCard(p) {
-        return `<div class="card"><img src="https://googleusercontent.com/profile/picture/1${p.id}"><div class="card-content"><span class="tag">${p.album.replace('תיקייה', 'אלבום')}</span><p>${p.title}</p></div></div>`;
+        const cat = p.category.replace('תיקייה', 'אלבום');
+        return `<div class="card" data-cat="${cat}" onclick="openLightbox('https://lh3.googleusercontent.com/d/${p.id}')">
+            <img src="https://lh3.googleusercontent.com/d/${p.id}">
+            <div class="card-content"><span class="tag">${cat}</span><p>${p.title}</p></div>
+        </div>`;
     }
 
     function renderTextCard(t) {
-        return `<div class="card" onclick="openText('${t.Link}')"><div class="card-content"><span class="tag">${t.Type}</span><h4>${t.Title}</h4><p>מאת: ${t.Author || 'אנונימי'}</p></div></div>`;
-    }
-
-    function renderJokeCard(j) {
-        return `<div class="card"><div class="card-content"><span class="tag">${j.Categories || 'כללי'}</span><p>"${j['Joke Content']}"</p></div></div>`;
-    }
-
-    async function openText(path) {
-        const area = document.getElementById('text-display-area');
-        document.getElementById('text-modal').style.display = 'flex';
-        area.innerHTML = 'טוען...';
-        try {
-            const res = await fetch('texts/' + path.trim());
-            const html = await res.text();
-            area.innerHTML = html;
-        } catch(e) { area.innerHTML = 'שגיאה בטעינה'; }
-    }
-
-    window.onload = init;
-</script>
-</body>
-</html>
+        const displayCat = t.Type.includes(' - ') ? t.Type.split(' - ')[1] : t.Type;
+        return `<div class="card" data-cat="${displayCat}" onclick="openText('${t.Link}')">
+            <div class="card-content"><span class="tag">${displayCat}</span><h4>${t.Title}</h4><p>מאת: ${t.Author || 'אנונימי'}</p></div>
+        </div>`;
